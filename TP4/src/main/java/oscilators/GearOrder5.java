@@ -1,8 +1,8 @@
 package oscilators;
 
-public class GearOrder5 implements IntegrationScheme {
-    @Override
-    public double calculatePosition() {
-        return 0;
-    }
+import models.Oscilator;
+
+public class GearOrder5 {
+
+
 }

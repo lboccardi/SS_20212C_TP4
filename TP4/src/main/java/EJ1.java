@@ -1,5 +1,7 @@
+import models.Oscilator;
 import oscilators.Beeman;
 import oscilators.IntegrationScheme;
+import oscilators.OriginalVerlet;
 import simulation.OscilatorSimulation;
 import simulation.Simulation;
 
@@ -25,9 +27,9 @@ public class EJ1 {
         parseArguments(args);
 
         /* Change for your own Integration Scheme */
-        IntegrationScheme scheme = new Beeman();
-
-        Simulation simulation = new OscilatorSimulation(scheme, path);
+        IntegrationScheme scheme = new OriginalVerlet(mass,k,gamma);
+        double dt = t_f /1000;
+        Simulation simulation = new OscilatorSimulation(scheme, path,dt,t_f,new Oscilator(r_0,v_0));
 
         simulation.initializeSimulation();
 
@@ -58,7 +60,8 @@ public class EJ1 {
         gamma = Double.parseDouble(args[2]);
         t_f = Double.parseDouble(args[3]);
         r_0 = Double.parseDouble(args[4]);
-        v_0 = Double.parseDouble(args[5]);
+        double A = Double.parseDouble(args[5]);
+        v_0 = - A * gamma / (2 * mass);
         path = args[6];
     }
 }
