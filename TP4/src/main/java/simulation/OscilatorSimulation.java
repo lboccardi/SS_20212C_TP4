@@ -1,12 +1,11 @@
 package simulation;
 
-import models.IntegrationScheme;
+import oscilators.IntegrationScheme;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
 
 public class OscilatorSimulation implements Simulation {
 

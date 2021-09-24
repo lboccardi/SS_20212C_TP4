@@ -1,5 +1,5 @@
-import models.Beeman;
-import models.IntegrationScheme;
+import oscilators.Beeman;
+import oscilators.IntegrationScheme;
 import simulation.OscilatorSimulation;
 import simulation.Simulation;
 
