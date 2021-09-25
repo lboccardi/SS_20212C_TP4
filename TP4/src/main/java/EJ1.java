@@ -1,4 +1,6 @@
 import models.Oscillator;
+import oscillators.AnalyticSolution;
+import oscillators.Beeman;
 import oscillators.IntegrationScheme;
 import oscillators.OriginalVerlet;
 import simulation.OscilatorSimulation;
@@ -26,11 +28,15 @@ public class EJ1 {
         parseArguments(args);
 
         /* Change for your own Integration Scheme */
-        IntegrationScheme scheme = new OriginalVerlet(mass, k, gamma, new Oscillator(r_0, v_0));
+        IntegrationScheme scheme = new Beeman(mass, k, gamma, new Oscillator(r_0, v_0));
+        AnalyticSolution analyticSolution =  new AnalyticSolution(mass, k, gamma, new Oscillator(r_0,v_0));
         double dt = t_f /1000;
         Simulation simulation = new OscilatorSimulation(scheme, path, dt, t_f);
 
         simulation.initializeSimulation();
+        double time = 0;
+        System.out.println("Analytic Solution for x: " + (float) analyticSolution.calculatePosition(time));
+        time += dt;
 
         long startTime = System.currentTimeMillis();
 
@@ -38,6 +44,8 @@ public class EJ1 {
             simulation.nextIteration();
             try {
                 simulation.printIteration();
+                System.out.println("Analytic Solution for x: " + (float) analyticSolution.calculatePosition(time));
+                time += dt;
             } catch (IOException e) {
                 e.printStackTrace();
             }
