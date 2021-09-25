@@ -25,4 +25,9 @@ public class Oscilator {
     public void setV(double v) {
         this.v = v;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%.5f %.5f", r, v);
+    }
 }

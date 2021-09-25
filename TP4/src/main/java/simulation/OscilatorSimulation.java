@@ -15,37 +15,39 @@ public class OscilatorSimulation implements Simulation {
     private double t;
     private final double dt;
     private final double t_f;
-    private double prev_r;
-    private final Oscilator oscilator;
+//    private double prev_r;
 
     private FileWriter fileWriter;
     private  PrintWriter printWriter;
 
-    public OscilatorSimulation(IntegrationScheme scheme, String simulationFilename, double dt,double t_f, Oscilator oscilator) {
+    public OscilatorSimulation(IntegrationScheme scheme, String simulationFilename, double dt,double t_f) {
         this.scheme = scheme;
         this.simulationFilename = simulationFilename;
         this.t = 0;
         this.dt = dt;
         this.t_f = t_f;
-        this.oscilator = oscilator;
-        this.prev_r = -1;
+//        this.prev_r = -1;
     }
 
     @Override
     public void initializeSimulation() throws IOException {
-        fileWriter = new FileWriter(simulationFilename, true);
+        fileWriter = new FileWriter(simulationFilename, false);
         printWriter = new PrintWriter(new BufferedWriter(fileWriter));
-        System.out.printf("%.2f - x: %.5f - v: %.5f\n",t,oscilator.getR(),oscilator.getV());
-
+        System.out.printf("%.2f - x: %.5f - v: %.5f\n",t, scheme.getOscillator().getR(),scheme.getOscillator().getV());
+        printWriter.println(t);
+        printWriter.println(scheme.getOscillator());
     }
 
     @Override
     public void nextIteration() {
-        double r = scheme.calculatePosition(oscilator,prev_r,dt);
-        double v = scheme.calculateVelocity(oscilator,prev_r,dt);
-        prev_r = oscilator.getR();
-        oscilator.setR(r);
-        oscilator.setV(v);
+//        double r = scheme.calculatePosition(oscilator,prev_r,dt);
+//        double v = scheme.calculateVelocity(oscilator,prev_r,dt);
+        double r = scheme.calculatePosition(dt);
+        double v = scheme.calculateVelocity(dt);
+//        prev_r = oscilator.getR();
+//        oscilator.setR(r);
+//        oscilator.setV(v);
+        scheme.updateOscillator(r, v);
         t += dt;
     }
 
@@ -64,12 +66,11 @@ public class OscilatorSimulation implements Simulation {
 //        }
 
 
-        printWriter.println(t);
+        printWriter.println((float) t);
 
-        String particle= "x "+oscilator.getR()+" v "+oscilator.getV();
-        printWriter.println(particle);
+        printWriter.println(scheme.getOscillator());
 
-        System.out.printf("%.2f - x: %.5f - v: %.5f\n",t,oscilator.getR(),oscilator.getV());
+        System.out.printf("%.2f - x: %.5f - v: %.5f\n",t, scheme.getOscillator().getR(), scheme.getOscillator().getV());
     }
 
     @Override
