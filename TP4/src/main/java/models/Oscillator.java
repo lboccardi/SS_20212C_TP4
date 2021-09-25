@@ -1,11 +1,11 @@
 package models;
 
-public class Oscilator {
+public class Oscillator {
 
     private double r;
     private double v;
 
-    public Oscilator(double r, double v) {
+    public Oscillator(double r, double v) {
         this.r = r;
         this.v = v;
     }

@@ -1,16 +1,16 @@
-package oscilators;
+package oscillators;
 
-import models.Oscilator;
+import models.Oscillator;
 
 public class Beeman implements IntegrationScheme {
 
     private final double mass;
     private final double k;
     private final double gamma;
-    private Oscilator prevOscillator = null;
-    private Oscilator currOscillator;
+    private Oscillator prevOscillator = null;
+    private Oscillator currOscillator;
 
-    public Beeman(double mass, double k, double gamma, Oscilator currOscillator) {
+    public Beeman(double mass, double k, double gamma, Oscillator currOscillator) {
         this.mass = mass;
         this.k = k;
         this.gamma = gamma;
@@ -18,7 +18,7 @@ public class Beeman implements IntegrationScheme {
     }
 
     private void generatePrevOscillator(double dt) {
-        this.prevOscillator = new Oscilator(eulerPosition(-dt), eulerVelocity(-dt));
+        this.prevOscillator = new Oscillator(eulerPosition(-dt), eulerVelocity(-dt));
     }
 
     private double eulerPosition(double dt) {
@@ -30,8 +30,8 @@ public class Beeman implements IntegrationScheme {
         return currOscillator.getV() + calculateAcceleration(currOscillator) * dt;
     }
 
-    private double calculateAcceleration(Oscilator oscilator) {
-        return (-k * oscilator.getR() - gamma * oscilator.getV()) / mass;
+    private double calculateAcceleration(Oscillator oscillator) {
+        return (-k * oscillator.getR() - gamma * oscillator.getV()) / mass;
     }
 
     private double predictVelocity(double dt) {
@@ -66,7 +66,7 @@ public class Beeman implements IntegrationScheme {
         double aCurr = calculateAcceleration(currOscillator);
         double aPrev = calculateAcceleration(prevOscillator);
 
-        Oscilator predictOscillator = new Oscilator(calculatePosition(dt), predictVelocity(dt));
+        Oscillator predictOscillator = new Oscillator(calculatePosition(dt), predictVelocity(dt));
 
         double aFut = calculateAcceleration(predictOscillator);
 
@@ -76,12 +76,12 @@ public class Beeman implements IntegrationScheme {
 
     @Override
     public void updateOscillator(double newPosition, double newVelocity) {
-        prevOscillator = new Oscilator(currOscillator.getR(), currOscillator.getV());
-        currOscillator = new Oscilator(newPosition, newVelocity);
+        prevOscillator = new Oscillator(currOscillator.getR(), currOscillator.getV());
+        currOscillator = new Oscillator(newPosition, newVelocity);
     }
 
     @Override
-    public Oscilator getOscillator() {
+    public Oscillator getOscillator() {
         return currOscillator;
     }
 }

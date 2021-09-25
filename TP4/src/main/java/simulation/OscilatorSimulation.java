@@ -1,7 +1,6 @@
 package simulation;
 
-import models.Oscilator;
-import oscilators.IntegrationScheme;
+import oscillators.IntegrationScheme;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;

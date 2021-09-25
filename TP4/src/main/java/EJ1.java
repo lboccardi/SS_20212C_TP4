@@ -1,6 +1,6 @@
-import models.Oscilator;
-import oscilators.Beeman;
-import oscilators.IntegrationScheme;
+import models.Oscillator;
+import oscillators.IntegrationScheme;
+import oscillators.OriginalVerlet;
 import simulation.OscilatorSimulation;
 import simulation.Simulation;
 
@@ -26,7 +26,7 @@ public class EJ1 {
         parseArguments(args);
 
         /* Change for your own Integration Scheme */
-        IntegrationScheme scheme = new Beeman(mass, k, gamma, new Oscilator(r_0, v_0));
+        IntegrationScheme scheme = new OriginalVerlet(mass, k, gamma, new Oscillator(r_0, v_0));
         double dt = t_f /1000;
         Simulation simulation = new OscilatorSimulation(scheme, path, dt, t_f);
 
