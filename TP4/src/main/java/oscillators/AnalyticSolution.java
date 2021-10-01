@@ -20,7 +20,6 @@ public class AnalyticSolution {
         double exp = Math.exp(- (gamma / (2 * mass)) * t);
         double sqrt = Math.sqrt( (k / mass) - Math.pow( gamma/(2 * mass ) ,2) );
         double cos = Math.cos( sqrt * t );
-
         return A * exp * cos;
     }
 

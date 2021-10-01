@@ -31,7 +31,11 @@ public class Beeman implements IntegrationScheme {
     }
 
     private double calculateAcceleration(Oscillator oscillator) {
-        return (-k * oscillator.getR() - gamma * oscillator.getV()) / mass;
+        return calculateForce(oscillator) / mass;
+    }
+
+    private double calculateForce(Oscillator oscillator) {
+        return -k * oscillator.getR() - gamma * oscillator.getV();
     }
 
     private double predictVelocity(double dt) {
