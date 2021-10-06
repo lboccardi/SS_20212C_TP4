@@ -36,11 +36,11 @@ public class GearOrder5 implements IntegrationScheme {
         this.prev_r5c = 0;
     }
 
-    private double calculateAcceleration(double v, double r) {
-        return calculateForce(v,r) / mass;
+    private double calculateAcceleration(double r, double v) {
+        return calculateForce(r,v) / mass;
     }
 
-    private double calculateForce(double v, double r) {
+    private double calculateForce(double r, double v) {
         return -k * r - gamma * v;
     }
 
@@ -80,7 +80,7 @@ public class GearOrder5 implements IntegrationScheme {
 
         double curr_r5p = prev_r5c;
 
-        double delta_a = calculateAcceleration(curr_r1p, curr_rp) - curr_r2p;
+        double delta_a = calculateAcceleration(curr_rp, curr_r1p) - curr_r2p;
         double delta_R2 = (delta_a * Math.pow(dt, 2)) / 2;
 
         curr_rc = curr_rp + (3.0/16) * delta_R2;
