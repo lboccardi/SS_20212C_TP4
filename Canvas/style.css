@@ -1,0 +1,11 @@
+canvas {
+    /* background-color: #a8a8a8; */
+    background-color: #2b2b2b; 
+}   
+body {
+    margin: 0px;
+}
+
+#inputfile {
+    display: inline;
+}
