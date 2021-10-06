@@ -124,10 +124,8 @@ function init(){
     canvas.width = 10 * scale;
     canvas.height = 10 * scale;
 
-    drawBorders()
-
     for (circle of simulation.events[curr_frame].circles){
-        circleArray.push(new Circle(circle.id, circle.x * scale, circle.y * scale, circle.r * scale));
+        circleArray.push(new Circle(circle.id, circle.x * scale + canvas.width/2, circle.y * scale + canvas.height/2, circle.r * scale));
     }
 
     for(circle of circleArray){
@@ -142,12 +140,11 @@ function animate(){
     // c.clearRect(0,0,simulation.Lx * scale, simulation.Ly * scale);
     c.fillStyle = '#2b2b2b';
     c.fillRect(0, 0, canvas.width, canvas.height);
-    drawBorders()
 
     if(paused){
         for(let j=0; j<simulation.events[curr_frame].circles.length;j++){
             let currCircle = simulation.events[curr_frame].circles[j]
-            circleArray[j].update(currCircle.x * scale, currCircle.y * scale, currCircle.vx * scale, currCircle.vy * scale)
+            circleArray[j].update(currCircle.x * scale + canvas.width/2, currCircle.y * scale + canvas.height/2, currCircle.vx * scale, currCircle.vy * scale)
         }
         requestID = requestAnimationFrame(animate);
     } else{
@@ -166,7 +163,7 @@ function animate(){
         if(valid){
             for(let j=0; j<simulation.events[curr_frame].circles.length;j++){
                 let currCircle = simulation.events[curr_frame].circles[j]
-                circleArray[j].update(currCircle.x * scale, currCircle.y * scale)
+                circleArray[j].update(currCircle.x * scale + canvas.width/2, currCircle.y * scale + canvas.height/2)
             }
         }
     
