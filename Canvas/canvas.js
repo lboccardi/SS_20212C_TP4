@@ -4,6 +4,7 @@ var close_color = '#8aff78'
 var main_color = '#f5f5f5'
 var close_circles = []
 var scale = 9000
+var invScale = 1/scale
 var mustDrawGrid = false
 var mustDrawRc = false
 var mustColor = false
@@ -121,11 +122,11 @@ function init(){
     frames = simulation.events.length-1
     curr_frame = 0
 
-    canvas.width = 10 * scale;
-    canvas.height = 10 * scale;
+    canvas.width = 4e8 * invScale;
+    canvas.height = 4e8 * invScale;
 
     for (circle of simulation.events[curr_frame].circles){
-        circleArray.push(new Circle(circle.id, circle.x * scale + canvas.width/2, circle.y * scale + canvas.height/2, circle.r * scale));
+        circleArray.push(new Circle(circle.id, circle.x * invScale + canvas.width/2, circle.y * invScale + canvas.height/2, circle.r * invScale));
     }
 
     for(circle of circleArray){
@@ -137,14 +138,14 @@ function init(){
 }
 
 function animate(){
-    // c.clearRect(0,0,simulation.Lx * scale, simulation.Ly * scale);
+    // c.clearRect(0,0,simulation.Lx * invScale, simulation.Ly * invScale);
     c.fillStyle = '#2b2b2b';
     c.fillRect(0, 0, canvas.width, canvas.height);
 
     if(paused){
         for(let j=0; j<simulation.events[curr_frame].circles.length;j++){
             let currCircle = simulation.events[curr_frame].circles[j]
-            circleArray[j].update(currCircle.x * scale + canvas.width/2, currCircle.y * scale + canvas.height/2, currCircle.vx * scale, currCircle.vy * scale)
+            circleArray[j].update(currCircle.x * invScale + canvas.width/2, currCircle.y * invScale + canvas.height/2, currCircle.vx * invScale, currCircle.vy * invScale)
         }
         requestID = requestAnimationFrame(animate);
     } else{
@@ -163,7 +164,7 @@ function animate(){
         if(valid){
             for(let j=0; j<simulation.events[curr_frame].circles.length;j++){
                 let currCircle = simulation.events[curr_frame].circles[j]
-                circleArray[j].update(currCircle.x * scale + canvas.width/2, currCircle.y * scale + canvas.height/2)
+                circleArray[j].update(currCircle.x * invScale + canvas.width/2, currCircle.y * invScale + canvas.height/2)
             }
         }
     
