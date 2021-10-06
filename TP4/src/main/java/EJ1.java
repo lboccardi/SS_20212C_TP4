@@ -1,9 +1,12 @@
 import models.Oscillator;
 import oscillators.*;
+import simulation.AnalyticSimulation;
 import simulation.OscilatorSimulation;
 import simulation.Simulation;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class EJ1 {
 
@@ -24,38 +27,44 @@ public class EJ1 {
 
         parseArguments(args);
 
-        /* Change for your own Integration Scheme */
-        IntegrationScheme scheme = new GearOrder5(mass, k, gamma, new Oscillator(r_0, v_0));
+        IntegrationScheme gearScheme = new GearOrder5(mass, k, gamma, new Oscillator(r_0, v_0));
+        IntegrationScheme beemanScheme = new Beeman(mass, k, gamma, new Oscillator(r_0, v_0));
+        IntegrationScheme verletScheme = new OriginalVerlet(mass, k, gamma, new Oscillator(r_0, v_0));
         AnalyticSolution analyticSolution =  new AnalyticSolution(mass, k, gamma, new Oscillator(r_0,v_0));
+
+        List<Simulation> simulations = new ArrayList<>();
         double dt = t_f /1000;
-        Simulation simulation = new OscilatorSimulation(scheme, path, dt, t_f);
+        simulations.add( new OscilatorSimulation(gearScheme, path.replace(".txt", "_gear.txt"), dt, t_f ));
+        simulations.add( new OscilatorSimulation(beemanScheme, path.replace(".txt", "_beeman.txt"), dt, t_f ));
+        simulations.add( new OscilatorSimulation(verletScheme, path.replace(".txt", "_verlet.txt"), dt, t_f ));
+        simulations.add( new AnalyticSimulation(analyticSolution, path.replace(".txt", "_analytic.txt"), dt, t_f ));
 
-        simulation.initializeSimulation();
-        double time = 0;
-        System.out.println("Analytic Solution for x: " + (float) analyticSolution.calculatePosition(time));
-        time += dt;
+        /* Change for your own Integration Scheme */
 
-        long startTime = System.currentTimeMillis();
+        for (Simulation s : simulations) {
+            s.initializeSimulation();
 
-        while (!simulation.isFinished()) {
-            simulation.nextIteration();
-            try {
-                simulation.printIteration();
-                System.out.println("Analytic Solution for x: " + (float) analyticSolution.calculatePosition(time));
-                time += dt;
-            } catch (IOException e) {
-                e.printStackTrace();
+            long startTime = System.currentTimeMillis();
+
+            while (!s.isFinished()) {
+                s.nextIteration();
+                try {
+                    s.printIteration();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
+
+            s.terminate();
+
+            long elapsedTime = System.currentTimeMillis() - startTime;
+            long elapsedSeconds = elapsedTime / 1000;
+            long secondsDisplay = elapsedSeconds % 60;
+            long elapsedMinutes = elapsedSeconds / 60;
+
+            System.out.printf("Total time: %d:%d\n", elapsedMinutes, secondsDisplay);
         }
 
-        simulation.terminate();
-
-        long elapsedTime = System.currentTimeMillis() - startTime;
-        long elapsedSeconds = elapsedTime / 1000;
-        long secondsDisplay = elapsedSeconds % 60;
-        long elapsedMinutes = elapsedSeconds / 60;
-
-        System.out.printf("Total time: %d:%d\n", elapsedMinutes, secondsDisplay);
     }
 
     public static void parseArguments(String[] args) {

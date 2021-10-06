@@ -67,4 +67,19 @@ public class OriginalVerlet implements IntegrationScheme {
     public Oscillator getOscillator() {
         return currOscillator;
     }
+
+    @Override
+    public double getMass() {
+        return mass;
+    }
+
+    @Override
+    public double getK() {
+        return k;
+    }
+
+    @Override
+    public double getGamma() {
+        return gamma;
+    }
 }
