@@ -1,5 +1,7 @@
 package models;
 
+import io.Circles;
+
 import java.awt.geom.Point2D;
 
 public class Body {
@@ -7,6 +9,7 @@ public class Body {
     private Point2D v;
     private double mass = 0;
     private BodyType type;
+    
 
     public Body(double rx,double ry,double vx, double vy,double mass, BodyType type) {
         this.r = new Point2D.Double(rx, ry);
@@ -56,8 +59,11 @@ public class Body {
         return Math.sqrt(Math.pow(v.getX(),2)+Math.pow(v.getY(),2));
     }
 
+    public Circles getAsCircle(){
+        return new Circles(type.ordinal(),r.getX(),r.getY());
+    }
     @Override
     public String toString() {
-        return String.format("r:(%.5f %.5f) v:(%.5f %.5f)", r.getX(),r.getY(), v.getX(),v.getY());
+        return String.format("%s r:(%.5f %.5f) v:(%.5f %.5f)",type.toString(), r.getX(),r.getY(), v.getX(),v.getY());
     }
 }
