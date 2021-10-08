@@ -5,6 +5,7 @@ import models.Oscillator;
 import oscillators.IntegrationScheme;
 
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GearOrder5Gravitational{
@@ -13,38 +14,36 @@ public class GearOrder5Gravitational{
     private Body currBody;
     List<Body> bodies;
 
-    private Point2D prev_rc;
-    private Point2D prev_r1c;
-    private Point2D prev_r2c;
-    private Point2D prev_r3c;
-    private Point2D prev_r4c;
-    private Point2D prev_r5c;
-
-    private Point2D curr_rc;
-    private Point2D curr_r1c;
-    private Point2D curr_r2c = new Point2D.Double(0,0);
-    private Point2D curr_r3c = new Point2D.Double(0,0);
-    private Point2D curr_r4c = new Point2D.Double(0,0);
-    private Point2D curr_r5c = new Point2D.Double(0,0);
+    private final Point2D [] currents;
+    private final Point2D [] previous;
+    private final double [] coefficients = new double[] { 3.0/16, 251.0/360, 1, 11.0/18, 1.0/6, 1.0/60};
 
     public GearOrder5Gravitational(Body body, List<Body> bodies) {
         this.currBody = body;
         this.bodies = bodies;
 
-        this.curr_rc = new Point2D.Double(body.getR().getX(),body.getR().getY());
-        this.curr_r1c = new Point2D.Double(body.getV().getX(),body.getV().getY());
+        currents = new Point2D[] {
+                new Point2D.Double(body.getR().getX(),body.getR().getY()),
+                new Point2D.Double(body.getV().getX(),body.getV().getY()),
+                new Point2D.Double(0,0),
+                new Point2D.Double(0,0),
+                new Point2D.Double(0,0),
+                new Point2D.Double(0,0),
+        };
 
-        this.prev_rc = new Point2D.Double(body.getR().getX(),body.getR().getY());
-        this.prev_r1c= new Point2D.Double(body.getV().getX(),body.getV().getY());
-        this.prev_r2c = calculateAcceleration(currBody);
-        this.prev_r3c = new Point2D.Double(0,0);
-        this.prev_r4c = new Point2D.Double(0,0);
-        this.prev_r5c = new Point2D.Double(0,0);
+        previous = new Point2D[] {
+                new Point2D.Double(currents[0].getX(), currents[0].getY()),
+                new Point2D.Double(currents[1].getX(), currents[1].getY()),
+                calculateAcceleration(currBody),
+                new Point2D.Double(0,0),
+                new Point2D.Double(0,0),
+                new Point2D.Double(0,0),
+        };
     }
 
     private Point2D calculateAcceleration(Body currBody) {
         Point2D totalForce = new Point2D.Double(0,0);
-        for (Body body:bodies) {
+        for (Body body : bodies) {
             if(body.getType()!=currBody.getType()){
                 Point2D aux = calculateGravitationalForce(currBody, body);
                 //Point2D eNormalDirection = currBody.calculateNormalR(body);
@@ -84,105 +83,42 @@ public class GearOrder5Gravitational{
     }
 
     public Point2D calculatePosition(double dt) {
-        double curr_rp_x = prev_rc.getX()
-                + prev_r1c.getX() * dt
-                + prev_r2c.getX() * Math.pow(dt, 2) / 2
-                + prev_r3c.getX() * (Math.pow(dt, 3) / factorial(3))
-                + prev_r4c.getX() * (Math.pow(dt, 4) / factorial(4))
-                + prev_r5c.getX() * (Math.pow(dt, 5) / factorial(5));
-        double curr_rp_y = prev_rc.getY()
-                + prev_r1c.getY() * dt
-                + prev_r2c.getY() * Math.pow(dt, 2) / 2
-                + prev_r3c.getY() * (Math.pow(dt, 3) / factorial(3))
-                + prev_r4c.getY() * (Math.pow(dt, 4) / factorial(4))
-                + prev_r5c.getY() * (Math.pow(dt, 5) / factorial(5));
-        Point2D curr_rp = new Point2D.Double(curr_rp_x, curr_rp_y);
+        Point2D[] currRps = new Point2D[6];
 
-        double curr_rp1_x = prev_r1c.getX()
-                + prev_r2c.getX() * dt
-                + prev_r3c.getX() * Math.pow(dt, 2) / 2
-                + prev_r4c.getX() * (Math.pow(dt, 3) / factorial(3))
-                + prev_r5c.getX() * (Math.pow(dt, 4) / factorial(4));
-        double curr_r1p_y = prev_r1c.getY()
-                + prev_r2c.getY() * dt
-                + prev_r3c.getY() * Math.pow(dt, 2) / 2
-                + prev_r4c.getY() * (Math.pow(dt, 3) / factorial(3))
-                + prev_r5c.getY() * (Math.pow(dt, 4) / factorial(4));
-        Point2D curr_r1p = new Point2D.Double(curr_rp1_x, curr_r1p_y);
+        double auxX, auxY;
 
-        double curr_r2p_x = prev_r2c.getX()
-                + prev_r3c.getX() * dt
-                + prev_r4c.getX() * Math.pow(dt, 2) / 2
-                + prev_r5c.getX() * (Math.pow(dt, 3) / factorial(3));
-        double curr_r2p_y = prev_r2c.getY()
-                + prev_r3c.getY() * dt
-                + prev_r4c.getY() * Math.pow(dt, 2) / 2
-                + prev_r5c.getY() * (Math.pow(dt, 3) / factorial(3));
-        Point2D curr_r2p = new Point2D.Double(curr_r2p_x, curr_r2p_y);
+        for (int k = 0 ; k < currents.length; k++) {
+            auxX = 0;
+            auxY = 0;
+            for (int i = 0 ; i < currents.length - k; i++) {
+                auxX += previous[i + k].getX() * Math.pow(dt, i) / factorial(i);
+                auxY += previous[i + k].getY() * Math.pow(dt, i) / factorial(i);
+            }
+            currRps[k] = new Point2D.Double(auxX, auxY);
+        }
 
-        double curr_r3p_x = prev_r3c.getX()
-                + prev_r4c.getX() * dt
-                + prev_r5c.getX() * Math.pow(dt, 2) / 2;
-        double curr_r3p_y = prev_r3c.getY()
-                + prev_r4c.getY()  * dt
-                + prev_r5c.getY()  * Math.pow(dt, 2) / 2;
-        Point2D curr_r3p = new Point2D.Double(curr_r3p_x, curr_r3p_y);
+        Body auxiliaryBody = new Body(currRps[0].getX(), currRps[0].getY(), currRps[1].getX(), currRps[1].getY(),currBody.getMass(),currBody.getType());
+        Point2D predictedA = calculateAcceleration(auxiliaryBody);
 
-        double curr_r4p_x = prev_r4c.getX()
-                + prev_r5c.getX() * dt;
-        double curr_r4p_y = prev_r4c.getY()
-                + prev_r5c.getY() * dt;
-        Point2D curr_r4p = new Point2D.Double(curr_r4p_x, curr_r4p_y);
+        Point2D deltaA = new Point2D.Double( predictedA.getX() - currRps[2].getX(),
+                predictedA.getY() - currRps[2].getY());
 
-        double curr_r5p_x = prev_r5c.getX();
-        double curr_r5p_y = prev_r5c.getY();
-        Point2D curr_r5p = new Point2D.Double(curr_r5p_x, curr_r5p_y);
+        Point2D deltaR2 = new Point2D.Double( (deltaA.getX() * Math.pow(dt, 2)) / 2 ,
+                (deltaA.getY() * Math.pow(dt, 2)) / 2 );
 
-        Body auxiliarBody = new Body(curr_rp.getX(),curr_rp.getY(),curr_r1p.getX(),curr_r1p.getY(),currBody.getMass(),currBody.getType());
-        Point2D predicted_a = calculateAcceleration(auxiliarBody);
-        double delta_a_x = predicted_a.getX() - curr_r2p.getX();
-        double delta_a_y = predicted_a.getY() - curr_r2p.getY();
+        for (int i = 0 ; i < currents.length ; i++) {
+            currents[i] = new Point2D.Double(
+                    currRps[i].getX() + coefficients[i] * deltaR2.getX() * factorial(i) / Math.pow(dt, i),
+                    currRps[i].getY() + coefficients[i] * deltaR2.getY() * factorial(i) / Math.pow(dt, i)
+            );
+            previous[i] = (Point2D) currents[i].clone();
+        }
 
-        double delta_R2_x = (delta_a_x * Math.pow(dt, 2)) / 2;
-        double delta_R2_y = (delta_a_y * Math.pow(dt, 2)) / 2;
-
-        curr_rc = new Point2D.Double(
-                curr_rp.getX() + (3.0/16) * delta_R2_x,
-                curr_rp.getY() + (3.0/16) * delta_R2_y
-        );
-        curr_r1c = new Point2D.Double(
-                curr_r1p.getX() + (251.0/360) * delta_R2_x / dt,
-                curr_r1p.getY() + (251.0/360) * delta_R2_y / dt
-        );
-        curr_r2c = new Point2D.Double(
-                curr_r2p.getX() + 1 * delta_R2_x * 2 /Math.pow(dt, 2),
-                curr_r2p.getY() + 1 * delta_R2_y * 2 /Math.pow(dt, 2)
-        );
-        curr_r3c = new Point2D.Double(
-                curr_r3p.getX() + (11.0/18) * delta_R2_x * factorial(3) / Math.pow(dt, 3),
-                curr_r3p.getY() + (11.0/18) * delta_R2_y * factorial(3) / Math.pow(dt, 3)
-        );
-        curr_r4c = new Point2D.Double(
-                curr_r4p.getX() + (1.0/6) * delta_R2_x * factorial(4) / Math.pow(dt, 4),
-                curr_r4p.getY() + (1.0/6) * delta_R2_y * factorial(4) / Math.pow(dt, 4)
-        );
-        curr_r5c = new Point2D.Double(
-                curr_r5p.getX() + (1.0/60) * delta_R2_x * factorial(5) / Math.pow(dt, 5),
-                curr_r5p.getY() + (1.0/60) * delta_R2_y * factorial(5) / Math.pow(dt, 5)
-        );
-
-        prev_rc = curr_rc;
-        prev_r1c = curr_r1c;
-        prev_r2c = curr_r2c;
-        prev_r3c = curr_r3c;
-        prev_r4c = curr_r4c;
-        prev_r5c = curr_r5c;
-
-        return curr_rc;
+        return currents[0];
     }
 
     public Point2D calculateVelocity(double dt) {
-        return curr_r1c;
+        return currents[1];
     }
 
 }
