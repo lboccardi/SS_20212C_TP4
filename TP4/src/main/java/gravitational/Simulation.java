@@ -58,7 +58,7 @@ public class Simulation implements simulation.Simulation {
         schemeEarth = new GearOrder5Gravitational(earth, Arrays.asList(sun,mars));
         schemeMars = new GearOrder5Gravitational(mars, Arrays.asList(sun,earth));
         schemeSpaceship = new GearOrder5Gravitational(spaceship, Arrays.asList(sun,mars,earth));
-        fileWriter = new FileWriter(simulationFilename, false);
+        fileWriter = new FileWriter(simulationFilename.replace(".txt", ".xyz"), false);
         printWriter = new PrintWriter(new BufferedWriter(fileWriter));
 
         System.out.println(t);
@@ -66,8 +66,12 @@ public class Simulation implements simulation.Simulation {
             System.out.println("    "+b.toString());
         }
 
-        printWriter.println(t);
-        printWriter.println("");
+        printWriter.println(4);
+        printWriter.println();
+        printWriter.println("Sun 0 0 " + 696340);
+        printWriter.println("Earth " + earth.getR().getX() + " " + earth.getR().getY() + " " + 6371);
+        printWriter.println("Mars " + mars.getR().getX() + " " + mars.getR().getY() + " " + 3389.5);
+        printWriter.println("Spaceship " + spaceship.getR().getX() + " " + spaceship.getR().getY() + " " + 100);
     }
 
     @Override
@@ -98,6 +102,13 @@ public class Simulation implements simulation.Simulation {
     public void printIteration() throws IOException {
         Event event = new Event(Arrays.asList(spaceship.getAsCircle(),earth.getAsCircle(),mars.getAsCircle(),sun.getAsCircle()),dt,t);
         events.add(event);
+
+        printWriter.println(4);
+        printWriter.println();
+        printWriter.println("Sun 0 0 " + 696340 * 1000);
+        printWriter.println("Earth " + earth.getR().getX() + " " + earth.getR().getY() + " " + 696340 * 1000);
+        printWriter.println("Mars " + mars.getR().getX() + " " + mars.getR().getY() + " " + 696340 * 1000);
+        printWriter.println("Spaceship " + spaceship.getR().getX() + " " + spaceship.getR().getY() + " " + 66340 * 1000);
 
         System.out.println(t);
         for (Body b:Arrays.asList(mars,spaceship,earth)) {

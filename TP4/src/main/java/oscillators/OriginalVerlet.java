@@ -54,7 +54,7 @@ public class OriginalVerlet implements IntegrationScheme {
             generatePrevOscillator(dt);
         }
 
-        return ( calculatePosition(dt) - prevOscillator.getR()) / (2 * dt);
+        return ( calculatePosition(2*dt) - prevOscillator.getR()) / (2 * dt);
     }
 
     @Override
