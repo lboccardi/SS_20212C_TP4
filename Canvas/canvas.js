@@ -3,7 +3,7 @@ var selected_color = '#f05800'
 var close_color = '#8aff78'
 var main_color = '#f5f5f5'
 var close_circles = []
-var solarSistemSize = 1e9 * 1000
+var solarSistemSize = 1e9
 var canvasPixelSize = 1000
 var scale = solarSistemSize/canvasPixelSize
 var invScale = 1/scale
@@ -13,16 +13,16 @@ var mustColor = false
 var drawArrows = false
 var paused = false
 
-                //ship     earth      mars      sun
-const colors = ['#fffc3b','#3b68ff','#ff5b3b','#ebebeb',]
-const radius = [    5,      15,         10,     30]
+                // sun      eatch      mars   ship 
+const colors = ['#fffc3b','#3b68ff','#ff5b3b','#ebebeb']
+const radius = [      30,          15,    10,    5]
 
 class Circle {
-    constructor(id, x, y, r) {
+    constructor(id, x, y) {
         this.id = id;
         this.x = x;
         this.y = y;
-        this.r = r;
+        this.r = radius[id];
     }
 
     draw() {
@@ -131,31 +131,34 @@ function init(){
 
     let i = 0;
     for (circle of simulation.events[curr_frame].circles){
-        circleArray.push(new Circle(circle.id, (circle.x*invScale + canvas.width/2), (circle.y*invScale + canvas.height/2)  , radius[i]));
+        circleArray.push(new Circle(circle.id, (circle.x*invScale + canvas.width/2), (circle.y*invScale + canvas.height/2)));
         i++;
     }
-
-    console.log(circleArray[2].x, circleArray[2].y)
 
     for(circle of circleArray){
         circle.draw()
     }
+
+    console.log(circleArray)
 
     if(frames > 1)
         animate();
 }
 
 function animate(){
-    c.clearRect(0,0,canvas.width, canvas.height);
-    // c.fillStyle = 'rgba(58, 58, 58, .05)';
-    // c.fillRect(0, 0, canvas.width, canvas.height);
-
-    console.log(circleArray[2].x, circleArray[2].y)
+    // console.log(circleArray)
+    // c.clearRect(0,0,canvas.width, canvas.height);
+    c.fillStyle = 'rgba(58, 58, 58, .05)';
+    c.fillRect(0, 0, canvas.width, canvas.height);
 
     if(paused){
         for(let j=0; j<simulation.events[curr_frame].circles.length;j++){
             let currCircle = simulation.events[curr_frame].circles[j]
-            circleArray[j].update((currCircle.x*invScale + canvas.width/2), (currCircle.y*invScale + canvas.height/2))
+            if(simulation.events[curr_frame].circles.length > circleArray.length){
+                circleArray.push(new Circle(currCircle.id, (currCircle.x*invScale + canvas.width/2), (currCircle.y*invScale + currCircle.height/2)));
+            }else{
+                circleArray[j].update((currCircle.x*invScale + canvas.width/2), (currCircle.y*invScale + canvas.height/2))
+            }
         }
         requestID = requestAnimationFrame(animate);
     } else{
@@ -174,11 +177,16 @@ function animate(){
         if(valid){
             for(let j=0; j<simulation.events[curr_frame].circles.length;j++){
                 let currCircle = simulation.events[curr_frame].circles[j]
-                circleArray[j].update((currCircle.x*invScale + canvas.width/2), (currCircle.y*invScale + canvas.height/2))
+                if(simulation.events[curr_frame].circles.length != circleArray.length){
+                    spaceship = simulation.events[curr_frame].circles[simulation.events[curr_frame].circles.length-1]
+                    circleArray.push(new Circle(spaceship.id, (spaceship.x*invScale + canvas.width/2), (spaceship.y*invScale + spaceship.height/2)  , radius[3]));
+                }else{
+                    circleArray[j].update((currCircle.x*invScale + canvas.width/2), (currCircle.y*invScale + canvas.height/2))
+                }
             }
         }
     
-        //console.log('Time: ', time)
+        console.log('Time: ', time)
     
         if(frames > 0){
             requestID = requestAnimationFrame(animate);
@@ -189,6 +197,7 @@ function animate(){
             lastTime = 0
             requestID =requestAnimationFrame(animate);
             valid = true
+            init()
         }
     }
 }

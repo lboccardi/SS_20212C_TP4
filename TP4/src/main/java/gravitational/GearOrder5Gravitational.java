@@ -10,7 +10,7 @@ import java.util.List;
 
 public class GearOrder5Gravitational{
 
-    private final double G = 6.674E-11;
+    private final double G = 6.674E-23;
     private Body currBody;
     List<Body> bodies;
 

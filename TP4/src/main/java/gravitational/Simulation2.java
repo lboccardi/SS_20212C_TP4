@@ -1,25 +1,22 @@
 package gravitational;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.Circles;
 import io.Event;
 import io.Output;
 import models.Body;
 import models.BodyType;
-import oscillators.IntegrationScheme;
 
 import java.awt.geom.Point2D;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Simulation implements simulation.Simulation {
+public class Simulation2 implements simulation.Simulation {
 
     private GearOrder5Gravitational schemeEarth;
     private GearOrder5Gravitational schemeSpaceship;
@@ -41,7 +38,12 @@ public class Simulation implements simulation.Simulation {
 
     private boolean spaceShipInitialized = false;
 
-    public Simulation(String simulationFilename, double dt, double t_f, double lounchPctg, Body sun, Body earth, Body mars) {
+    private boolean spaceshipReachedMars;
+    private double spaceshipMarsMinDist;
+    private double spaceshipMarsMinDistCurrDist;
+    private double marsRadious = 3396;
+
+    public Simulation2(String simulationFilename, double dt, double t_f, double lounchPctg, Body sun, Body earth, Body mars) {
         this.simulationFilename = simulationFilename;
         this.t = 0;
         this.dt = dt;
@@ -51,6 +53,16 @@ public class Simulation implements simulation.Simulation {
         this.earth = earth;
         this.mars = mars;
         this.spaceship = null;
+
+        spaceshipReachedMars = false;
+        spaceshipMarsMinDist = calculateDistance(mars, earth);
+        spaceshipMarsMinDistCurrDist = spaceshipMarsMinDist;
+    }
+
+    private double calculateDistance(Body b1, Body b2) {
+        double dx = Math.abs(b2.getR().getX() - b1.getR().getX());
+        double dy = Math.abs(b2.getR().getY() - b1.getR().getY());
+        return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
     }
 
     @Override
@@ -79,11 +91,17 @@ public class Simulation implements simulation.Simulation {
 
     @Override
     public void nextIteration() {
-
         if(t/t_f > lounchPctg && !spaceShipInitialized){
             spaceShipInitialized = true;
             spaceship = initializeSpaceship(earth,sun);
             schemeSpaceship = new GearOrder5Gravitational(spaceship, Arrays.asList(sun,mars,earth));
+            spaceshipMarsMinDistCurrDist = calculateDistance(mars, spaceship);
+            if(spaceshipMarsMinDistCurrDist < spaceshipMarsMinDist){
+                spaceshipMarsMinDist = spaceshipMarsMinDistCurrDist;
+                if(spaceshipMarsMinDistCurrDist < marsRadious){
+                    spaceshipReachedMars = true;
+                }
+            }
         }
 
         Point2D r_earth = schemeEarth.calculatePosition(dt);
@@ -129,27 +147,7 @@ public class Simulation implements simulation.Simulation {
 
     @Override
     public void printIteration() throws IOException {
-        System.out.println(spaceship);
-        Event event;
-        if(spaceship != null){
-            event = new Event(Arrays.asList(earth.getAsCircle(),mars.getAsCircle(),sun.getAsCircle(),spaceship.getAsCircle()),dt,t);
-        }else{
-            event = new Event(Arrays.asList(earth.getAsCircle(),mars.getAsCircle(),sun.getAsCircle()),dt,t);
-        }
-
-        events.add(event);
-
-        printWriter.println(4);
-        printWriter.println();
-        printWriter.println("Sun 0 0 " + 696340 * 1000);
-        printWriter.println("Earth " + earth.getR().getX() + " " + earth.getR().getY() + " " + 696340 * 1000);
-        printWriter.println("Mars " + mars.getR().getX() + " " + mars.getR().getY() + " " + 696340 * 1000);
-//        printWriter.println("Spaceship " + spaceship.getR().getX() + " " + spaceship.getR().getY() + " " + 66340 * 1000);
-//
-//        System.out.println(t);
-//        for (Body b:Arrays.asList(mars,spaceship,earth)) {
-//            System.out.println("    "+b.toString());
-//        }
+        return;
     }
 
     @Override
@@ -159,15 +157,6 @@ public class Simulation implements simulation.Simulation {
 
     @Override
     public void terminate() throws IOException {
-        try {
-            final Output output = new Output(events);
-            final ObjectMapper mapper = new ObjectMapper();
-            mapper.writeValue(Paths.get(simulationFilename.replace(".txt", "_light.json")).toFile(), output);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
-        printWriter.close();
-        fileWriter.close();
+        System.out.println("reached: " + spaceshipReachedMars + " - min dist: " + spaceshipMarsMinDist + " - lounchPCTG: " + lounchPctg);
     }
 }
