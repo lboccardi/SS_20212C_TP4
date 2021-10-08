@@ -10,7 +10,6 @@ import java.util.List;
 public class GearOrder5Gravitational{
 
     private final double G = 6.674E-20;
-    private Body prevBody = null;
     private Body currBody;
     List<Body> bodies;
 
@@ -34,6 +33,7 @@ public class GearOrder5Gravitational{
 
         this.curr_rc = new Point2D.Double(body.getR().getX(),body.getR().getY());
         this.curr_r1c = new Point2D.Double(body.getV().getX(),body.getV().getY());
+
         this.prev_rc = new Point2D.Double(body.getR().getX(),body.getR().getY());
         this.prev_r1c= new Point2D.Double(body.getV().getX(),body.getV().getY());
         this.prev_r2c = calculateAcceleration(currBody);
@@ -46,9 +46,10 @@ public class GearOrder5Gravitational{
         Point2D totalForce = new Point2D.Double(0,0);
         for (Body body:bodies) {
             if(body.getType()!=currBody.getType()){
-                Point2D aux = calculateGravitationalForce(body,currBody);
-                Point2D eNormalDirection = currBody.calculateNormalR(body);
-                totalForce.setLocation(totalForce.getX()+aux.getX()*eNormalDirection.getX(),totalForce.getY()+aux.getY()*eNormalDirection.getY());
+                Point2D aux = calculateGravitationalForce(currBody, body);
+                //Point2D eNormalDirection = currBody.calculateNormalR(body);
+                //totalForce.setLocation(totalForce.getX()+aux.getX()*eNormalDirection.getX(),totalForce.getY()+aux.getY()*eNormalDirection.getY());
+                totalForce.setLocation(totalForce.getX()+aux.getX(),totalForce.getY()+aux.getY());
             }
         }
         totalForce.setLocation(totalForce.getX()/currBody.getMass(),totalForce.getY()/currBody.getMass());
@@ -56,18 +57,23 @@ public class GearOrder5Gravitational{
     }
 
     private Point2D calculateGravitationalForce(Body b1, Body b2) {
-        Point2D distances = calculateDistance(b1, b2);
-        double force = G * (b1.getMass() * b2.getMass()) / Math.sqrt(Math.pow(distances.getX(), 2) +
-                Math.pow(distances.getY(), 2));
-        double fx = force * distances.getX();
-        double fy = force * distances.getY();
+        double distance = calculateDistance(b1, b2);
+        double force = G* b1.getMass() * b2.getMass() / distance;
+
+        double dx = Math.abs(b2.getR().getX() - b1.getR().getX());
+        double dy = Math.abs(b2.getR().getY() - b1.getR().getY());
+        double angle = Math.atan(dy/dx);
+
+        double fx = force * Math.cos(angle);
+        double fy = force * Math.sin(angle);
+
         return new Point2D.Double(fx, fy);
     }
 
-    private Point2D calculateDistance(Body b1, Body b2) {
-        double dx = b2.getR().getX() - b1.getR().getX();
-        double dy = b2.getR().getY() - b1.getR().getY();
-        return new Point2D.Double(dx, dy);
+    private double calculateDistance(Body b1, Body b2) {
+        double dx = Math.abs(b2.getR().getX() - b1.getR().getX());
+        double dy = Math.abs(b2.getR().getY() - b1.getR().getY());
+        return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
     }
 
     private static int factorial(int n){
@@ -130,7 +136,6 @@ public class GearOrder5Gravitational{
 
         double curr_r5p_x = prev_r5c.getX();
         double curr_r5p_y = prev_r5c.getY();
-
         Point2D curr_r5p = new Point2D.Double(curr_r5p_x, curr_r5p_y);
 
         Body auxiliarBody = new Body(curr_rp.getX(),curr_rp.getY(),curr_r1p.getX(),curr_r1p.getY(),currBody.getMass(),currBody.getType());
