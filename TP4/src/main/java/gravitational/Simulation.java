@@ -67,7 +67,7 @@ public class Simulation implements simulation.Simulation {
 //            System.out.println("    "+b.toString());
 //        }
 
-        printWriter.println(4);
+        printWriter.println(3);
         printWriter.println();
         printWriter.println("Sun 0 0 " + 696340);
         printWriter.println("Earth " + earth.getR().getX() + " " + earth.getR().getY() + " " + 6371);
@@ -129,7 +129,7 @@ public class Simulation implements simulation.Simulation {
 
     @Override
     public void printIteration() throws IOException {
-        System.out.println(spaceship);
+//        System.out.println(spaceship);
         Event event;
         if(spaceship != null){
             event = new Event(Arrays.asList(earth.getAsCircle(),mars.getAsCircle(),sun.getAsCircle(),spaceship.getAsCircle()),dt,t);
@@ -139,7 +139,7 @@ public class Simulation implements simulation.Simulation {
 
         events.add(event);
 
-        printWriter.println(4);
+        printWriter.println(3);
         printWriter.println();
         printWriter.println("Sun 0 0 " + 696340 * 1000);
         printWriter.println("Earth " + earth.getR().getX() + " " + earth.getR().getY() + " " + 696340 * 1000);
