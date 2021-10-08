@@ -1,29 +1,26 @@
 package gravitational;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.Circles;
 import io.Event;
 import io.Output;
 import models.Body;
 import models.BodyType;
-import oscillators.IntegrationScheme;
 
 import java.awt.geom.Point2D;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Simulation implements simulation.Simulation {
+public class Simulation3 implements simulation.Simulation {
 
-    private GearOrder5Gravitational schemeEarth;
-    private GearOrder5Gravitational schemeSpaceship;
-    private GearOrder5Gravitational schemeMars;
+    private BeemanGravitational schemeEarth;
+    private BeemanGravitational schemeSpaceship;
+    private BeemanGravitational schemeMars;
     private final String simulationFilename;
     private double t;
     private final double dt;
@@ -41,7 +38,7 @@ public class Simulation implements simulation.Simulation {
 
     private boolean spaceShipInitialized = false;
 
-    public Simulation(String simulationFilename, double dt, double t_f, double lounchPctg, Body sun, Body earth, Body mars) {
+    public Simulation3(String simulationFilename, double dt, double t_f, double lounchPctg, Body sun, Body earth, Body mars) {
         this.simulationFilename = simulationFilename;
         this.t = 0;
         this.dt = dt;
@@ -56,9 +53,9 @@ public class Simulation implements simulation.Simulation {
     @Override
     public void initializeSimulation() throws IOException {
         events = new ArrayList<>();
-        schemeEarth = new GearOrder5Gravitational(earth, Arrays.asList(sun,mars));
-        schemeMars = new GearOrder5Gravitational(mars, Arrays.asList(sun,earth));
-        //schemeSpaceship = new GearOrder5Gravitational(spaceship, Arrays.asList(sun,mars,earth));
+        schemeEarth = new BeemanGravitational(earth, Arrays.asList(sun,mars));
+        schemeMars = new BeemanGravitational(mars, Arrays.asList(sun,earth));
+        //schemeSpaceship = new BeemanGravitational(spaceship, Arrays.asList(sun,mars,earth));
         fileWriter = new FileWriter(simulationFilename.replace(".txt", ".xyz"), false);
         printWriter = new PrintWriter(new BufferedWriter(fileWriter));
 
@@ -83,7 +80,7 @@ public class Simulation implements simulation.Simulation {
         if(t/t_f > lounchPctg && !spaceShipInitialized){
             spaceShipInitialized = true;
             spaceship = initializeSpaceship(earth,sun);
-            schemeSpaceship = new GearOrder5Gravitational(spaceship, Arrays.asList(sun,mars,earth));
+            schemeSpaceship = new BeemanGravitational(spaceship, Arrays.asList(sun,mars,earth));
         }
 
         Point2D r_earth = schemeEarth.calculatePosition(dt);
@@ -97,6 +94,7 @@ public class Simulation implements simulation.Simulation {
             Point2D v_spaceship = schemeSpaceship.calculateVelocity(dt);
             spaceship.setR(r_spaceship);
             spaceship.setV(v_spaceship);
+            schemeSpaceship.updateBody(r_spaceship, v_spaceship);
         }
 
         earth.setR(r_earth);
@@ -104,6 +102,9 @@ public class Simulation implements simulation.Simulation {
 
         mars.setR(r_mars);
         mars.setV(v_mars);
+
+        schemeEarth.updateBody(r_earth, v_earth);
+        schemeMars.updateBody(r_mars, v_mars);
 
         t += dt;
     }

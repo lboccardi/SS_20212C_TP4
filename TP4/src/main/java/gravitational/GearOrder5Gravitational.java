@@ -1,6 +1,7 @@
 package gravitational;
 
 import models.Body;
+import models.BodyType;
 import models.Oscillator;
 import oscillators.IntegrationScheme;
 
@@ -16,7 +17,7 @@ public class GearOrder5Gravitational{
 
     private final Point2D [] currents;
     private final Point2D [] previous;
-    private final double [] coefficients = new double[] { 3.0/16, 251.0/360, 1, 11.0/18, 1.0/6, 1.0/60};
+    private final double [] coefficients = new double[] { 3.0/20, 251.0/360, 1, 11.0/18, 1.0/6, 1.0/60};
 
     public GearOrder5Gravitational(Body body, List<Body> bodies) {
         this.currBody = body;
@@ -51,6 +52,8 @@ public class GearOrder5Gravitational{
                 forcey += aux.getY();
             }
         }
+        double accelerationMod = Math.sqrt( Math.pow(forcex/currBody.getMass(), 2) + Math.pow(forcey/currBody.getMass(), 2) );
+        System.out.println("Acceleration for " + currBody.getType().name() + " is " + accelerationMod);
         return new Point2D.Double(forcex/currBody.getMass(),forcey/currBody.getMass());
     }
 
