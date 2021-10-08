@@ -28,28 +28,24 @@ public class Simulation implements simulation.Simulation {
     private final double dt;
     private final double t_f;
 
+    private Body sun;
+    private Body earth;
     private Body mars;
     private Body spaceship;
-    private Body earth;
-    private Body sun;
     private List<Event> events;
 
     private FileWriter fileWriter;
     private  PrintWriter printWriter;
 
-
-
     public Simulation(String simulationFilename, double dt, double t_f, Body sun, Body earth, Body mars, Body spaceship) {
-
         this.simulationFilename = simulationFilename;
         this.t = 0;
         this.dt = dt;
         this.t_f = t_f;
-        this.earth = earth;
-        this.spaceship = spaceship;
-        this.mars = mars;
         this.sun = sun;
-
+        this.earth = earth;
+        this.mars = mars;
+        this.spaceship = spaceship;
     }
 
     @Override

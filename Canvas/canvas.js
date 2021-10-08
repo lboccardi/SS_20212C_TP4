@@ -3,7 +3,7 @@ var selected_color = '#f05800'
 var close_color = '#8aff78'
 var main_color = '#f5f5f5'
 var close_circles = []
-var solarSistemSize = 5e9
+var solarSistemSize = 1e9 * 1000
 var canvasPixelSize = 1000
 var scale = solarSistemSize/canvasPixelSize
 var invScale = 1/scale
@@ -14,7 +14,7 @@ var drawArrows = false
 var paused = false
 
                 //ship     earth      mars      sun
-const colors = ['#ebebeb','#3b68ff','#ff5b3b','#fffc3b',]
+const colors = ['#fffc3b','#3b68ff','#ff5b3b','#ebebeb',]
 const radius = [    5,      15,         10,     30]
 
 class Circle {
@@ -146,9 +146,9 @@ function init(){
 }
 
 function animate(){
-    // c.clearRect(0,0,canvas.width, canvas.height);
-    c.fillStyle = 'rgba(58, 58, 58, .05)';
-    c.fillRect(0, 0, canvas.width, canvas.height);
+    c.clearRect(0,0,canvas.width, canvas.height);
+    // c.fillStyle = 'rgba(58, 58, 58, .05)';
+    // c.fillRect(0, 0, canvas.width, canvas.height);
 
     console.log(circleArray[2].x, circleArray[2].y)
 
