@@ -4,7 +4,7 @@ import simulation.AnalyticSimulation;
 import simulation.OscilatorSimulation;
 import simulation.Simulation;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +17,8 @@ public class EJ1 {
     private static double r_0;
     private static double v_0;
     private static String path;
+    private static FileWriter errorFileWriter;
+    private static PrintWriter errorPrintWriter;
 
     public static void main(String[] args) throws IOException {
 
@@ -27,43 +29,20 @@ public class EJ1 {
 
         parseArguments(args);
 
-        IntegrationScheme gearScheme = new GearOrder5(mass, k, gamma, new Oscillator(r_0, v_0));
-        IntegrationScheme beemanScheme = new Beeman(mass, k, gamma, new Oscillator(r_0, v_0));
-        IntegrationScheme verletScheme = new OriginalVerlet(mass, k, gamma, new Oscillator(r_0, v_0));
-        AnalyticSolution analyticSolution =  new AnalyticSolution(mass, k, gamma, new Oscillator(r_0,v_0));
+        double initialDt = 1.0 / 2000;
+        double finalDt = (1.0 / 100);
+        double currDt = initialDt;
 
-        List<Simulation> simulations = new ArrayList<>();
-        double dt = t_f /1000;
-        simulations.add( new OscilatorSimulation(gearScheme, path.replace(".txt", "_gear.txt"), dt, t_f ));
-        simulations.add( new OscilatorSimulation(beemanScheme, path.replace(".txt", "_beeman.txt"), dt, t_f ));
-        simulations.add( new OscilatorSimulation(verletScheme, path.replace(".txt", "_verlet.txt"), dt, t_f ));
-        simulations.add( new AnalyticSimulation(analyticSolution, path.replace(".txt", "_analytic.txt"), dt, t_f ));
+        errorFileWriter = new FileWriter(path.replace(".txt", "_errors.txt"), false);
+        errorPrintWriter = new PrintWriter(new BufferedWriter(errorFileWriter));
 
-        /* Change for your own Integration Scheme */
-
-        for (Simulation s : simulations) {
-            s.initializeSimulation();
-
-            long startTime = System.currentTimeMillis();
-
-            while (!s.isFinished()) {
-                s.nextIteration();
-                try {
-                    s.printIteration();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            s.terminate();
-
-            long elapsedTime = System.currentTimeMillis() - startTime;
-            long elapsedSeconds = elapsedTime / 1000;
-            long secondsDisplay = elapsedSeconds % 60;
-            long elapsedMinutes = elapsedSeconds / 60;
-
-            System.out.printf("Total time: %d:%d\n", elapsedMinutes, secondsDisplay);
+        while(currDt <= finalDt) {
+            doSimulation(currDt, t_f);
+            currDt += initialDt;
         }
+
+        errorPrintWriter.close();
+        errorFileWriter.close();
 
     }
 
@@ -76,5 +55,47 @@ public class EJ1 {
         double A = Double.parseDouble(args[5]);
         v_0 = - A * gamma / (2 * mass);
         path = args[6];
+    }
+
+    public static String fmt (double dt) {
+        return String.format("%.4f", dt).replace(',', '.');
+    }
+
+    public static void doSimulation(double currDt, double t_f) throws IOException {
+        IntegrationScheme gearScheme = new GearOrder5(mass, k, gamma, new Oscillator(r_0, v_0));
+        IntegrationScheme beemanScheme = new Beeman(mass, k, gamma, new Oscillator(r_0, v_0));
+        IntegrationScheme verletScheme = new OriginalVerlet(mass, k, gamma, new Oscillator(r_0, v_0));
+        AnalyticSolution analyticSolution =  new AnalyticSolution(mass, k, gamma, new Oscillator(r_0,v_0));
+
+        List<Simulation> simulations = new ArrayList<>();
+
+        simulations.add( new OscilatorSimulation(gearScheme, path.replace(".txt", "_gear_" + fmt(currDt) + ".txt"), currDt, t_f ));
+        simulations.add( new OscilatorSimulation(beemanScheme, path.replace(".txt", "_beeman_" + fmt(currDt) + ".txt"), currDt, t_f ));
+        simulations.add( new OscilatorSimulation(verletScheme, path.replace(".txt", "_verlet_" + fmt(currDt) + ".txt"), currDt, t_f ));
+        simulations.add( new AnalyticSimulation(analyticSolution, path.replace(".txt", "_analytic_" + fmt(currDt) + ".txt"), currDt, t_f ));
+
+        /* Change for your own Integration Scheme */
+
+        errorPrintWriter.println(currDt);
+
+        for (Simulation s : simulations) {
+            s.initializeSimulation();
+
+            while (!s.isFinished()) {
+                s.nextIteration();
+                try {
+                    s.printIteration();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (! (s instanceof AnalyticSimulation) ) {
+                errorPrintWriter.println(s.calculateECM());
+            }
+
+            s.terminate();
+        }
+
     }
 }

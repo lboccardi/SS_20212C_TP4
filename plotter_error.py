@@ -4,34 +4,37 @@ import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
 
+    i = 0
+    dts = []
+    gear_ecm = []
+    beeman_ecm = []
+    verlet_ecm = []
 
-    tags = ["out_beeman_error.txt", "out_gear_error.txt", "out_verlet_error.txt"]    
 
-    times = []
-    errors = []
-
-    for i in range(len(tags)):
-        times.append([])
-        errors.append([])
-
-        with open(tags[i]) as f:
-            even = True
-            for line in f:
-                if even:
-                    times[i].append(float(line))
-                else:
-                    errors[i].append(float(line))
-                even = not even
+    with open("out_errors.txt") as f:
+        
+        for line in f:
+            value = i % 4
+            if value == 0:
+                dts.append(float(line))
+            elif value == 1:
+                gear_ecm.append(float(line))
+            elif value == 2:
+                beeman_ecm.append(float(line))
+            else:
+                verlet_ecm.append(float(line))
+            i += 1
 
     formats = [ 'g.-', 'b.-', 'k.-']
     labels = ['Beeman ECM', 'Gear Predictor-Corrector Order 5 ECM', 'Verlet ECM']
     
-    for i in range(len(tags)):
-        plt.plot(times[i], errors[i], formats[i], label=labels[i])
+    plt.plot(dts, beeman_ecm, formats[0], label=labels[0])
+    plt.plot(dts, gear_ecm, formats[1], label=labels[1])
+    plt.plot(dts, verlet_ecm, formats[2], label=labels[2])
 
     plt.grid(b=True, which='both', axis='both')
     plt.ylabel('ECM')
-    plt.xlabel('Tiempo (s)')
+    plt.xlabel('Diferencial de Tiempo (s)')
     plt.yscale('log')
     plt.legend()
     plt.show()

@@ -56,5 +56,8 @@ public class AnalyticSimulation implements Simulation {
         fileWriter.close();
     }
 
-
+    @Override
+    public double calculateECM() {
+        return 0;
+    }
 }

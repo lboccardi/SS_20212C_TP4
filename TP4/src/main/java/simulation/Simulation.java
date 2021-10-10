@@ -8,4 +8,5 @@ public interface Simulation {
     void printIteration() throws IOException;
     boolean isFinished();
     void terminate() throws IOException;
+    double calculateECM();
 }

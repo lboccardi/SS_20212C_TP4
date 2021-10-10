@@ -172,4 +172,9 @@ public class Simulation implements simulation.Simulation {
         printWriter.close();
         fileWriter.close();
     }
+
+    @Override
+    public double calculateECM() {
+        return 0;
+    }
 }

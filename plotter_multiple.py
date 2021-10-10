@@ -4,8 +4,13 @@ import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
 
+    if (len(sys.argv) < 2):
+        print("Wrong amount of parameters")
+        exit()
 
-    tags = ["out_analytic.txt", "out_beeman.txt", "out_gear.txt", "out_verlet.txt"]    
+    dt = sys.argv[1]      
+
+    tags = [f"out_analytic_{dt}.txt", f"out_beeman_{dt}.txt", f"out_gear_{dt}.txt", f"out_verlet_{dt}.txt"]  
 
     times = []
     positions = []

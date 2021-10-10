@@ -21,11 +21,9 @@ public class OscilatorSimulation implements Simulation {
 
     private FileWriter fileWriter;
     private  PrintWriter printWriter;
-    private FileWriter errorFileWriter;
-    private PrintWriter errorPrintWriter;
-    private AnalyticSolution analyticSolution;
-    private List<Double> analytics;
-    private List<Double> values;
+    private final AnalyticSolution analyticSolution;
+    private final List<Double> analytics;
+    private final List<Double> values;
 
     public OscilatorSimulation(IntegrationScheme scheme, String simulationFilename, double dt,double t_f) {
         this.scheme = scheme;
@@ -38,11 +36,7 @@ public class OscilatorSimulation implements Simulation {
         values = new ArrayList<>();
     }
 
-    private double calculateECM() {
-
-        analytics.add(analyticSolution.calculatePosition(t));
-        values.add(scheme.getOscillator().getR());
-
+    public double calculateECM() {
         double acum = 0;
 
         for (int i = 0 ; i < analytics.size() ; i++) {
@@ -57,11 +51,8 @@ public class OscilatorSimulation implements Simulation {
         fileWriter = new FileWriter(simulationFilename, false);
         printWriter = new PrintWriter(new BufferedWriter(fileWriter));
 
-        errorFileWriter = new FileWriter(simulationFilename.replace(".txt", "_error.txt"), false);
-        errorPrintWriter = new PrintWriter(new BufferedWriter(errorFileWriter));
-
-        errorPrintWriter.println(t);
-        errorPrintWriter.println( calculateECM() );
+        analytics.add(analyticSolution.calculatePosition(t));
+        values.add(scheme.getOscillator().getR());
 
         printWriter.println(t);
         printWriter.println(scheme.getOscillator());
@@ -72,13 +63,15 @@ public class OscilatorSimulation implements Simulation {
         double r = scheme.calculatePosition(dt);
         double v = scheme.calculateVelocity(dt);
         scheme.updateOscillator(r, v);
+
         t += dt;
+
+        analytics.add(analyticSolution.calculatePosition(t));
+        values.add(scheme.getOscillator().getR());
     }
 
     @Override
-    public void printIteration() throws IOException {
-        errorPrintWriter.println((float) t);
-        errorPrintWriter.println(calculateECM());
+    public void printIteration() {
         printWriter.println((float) t);
         printWriter.println(scheme.getOscillator());
     }
@@ -92,7 +85,5 @@ public class OscilatorSimulation implements Simulation {
     public void terminate() throws IOException {
         printWriter.close();
         fileWriter.close();
-        errorPrintWriter.close();
-        errorFileWriter.close();
     }
 }
