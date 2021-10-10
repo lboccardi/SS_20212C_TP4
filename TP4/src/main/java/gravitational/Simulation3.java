@@ -163,6 +163,11 @@ public class Simulation3 implements simulation.Simulation {
     }
 
     @Override
+    public double calculateECM() {
+        return 0;
+    }
+
+    @Override
     public boolean isFinished() {
         return t_f < t;
     }
