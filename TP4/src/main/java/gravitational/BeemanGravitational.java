@@ -1,6 +1,7 @@
 package gravitational;
 
 import models.Body;
+import models.BodyType;
 import models.Oscillator;
 
 import java.awt.geom.Point2D;
@@ -8,7 +9,7 @@ import java.util.List;
 
 public class BeemanGravitational {
 
-    private final double G = 6.674E-20;
+    private final double G = 6.693E-20;
     private Body currBody;
     private Body prevBody;
     private List<Body> bodies;
@@ -17,6 +18,12 @@ public class BeemanGravitational {
     public BeemanGravitational(Body body, List<Body> bodies) {
         this.currBody = body;
         this.bodies = bodies;
+        if(currBody.getType() == BodyType.EARTH){
+            prevBody = new Body(1.494756064696226E+08,-2.819926499723464E+04,-1.133804292301369E+00,2.780167351164691E+01,currBody.getMass(),currBody.getRadio(),currBody.getType());
+        }
+        if(currBody.getType() == BodyType.MARS){
+            prevBody = new Body(-2.436819140046635E+08,-3.364859267457952E+07,3.539367926945636E+00,-2.379158153666075E+01,currBody.getMass(),currBody.getRadio(),currBody.getType());
+        }
     }
 
     private Point2D calculateAcceleration(Body currBody) {
@@ -30,14 +37,14 @@ public class BeemanGravitational {
             }
         }
         double accelerationMod = Math.sqrt( Math.pow(forcex/currBody.getMass(), 2) + Math.pow(forcey/currBody.getMass(), 2) );
-        System.out.println("Acceleration for " + currBody.getType().name() + " is " + accelerationMod);
+        //System.out.println("Acceleration for " + currBody.getType().name() + " is " + accelerationMod);
         return new Point2D.Double(forcex/currBody.getMass(),forcey/currBody.getMass());
     }
 
     private void generatePrevBody(double dt) {
         Point2D eulerPos = eulerPosition(-dt);
         Point2D eulerVel = eulerVelocity(-dt);
-        prevBody = new Body(eulerPos.getX(), eulerPos.getY(), eulerVel.getX(), eulerVel.getY(), currBody.getMass(), currBody.getType());
+        prevBody = new Body(eulerPos.getX(), eulerPos.getY(), eulerVel.getX(), eulerVel.getY(), currBody.getMass(),currBody.getRadio(), currBody.getType());
     }
 
     private Point2D eulerPosition(double dt) {
@@ -119,7 +126,7 @@ public class BeemanGravitational {
 
         Point2D predictedPos = calculatePosition(dt);
         Point2D predictedVel = predictVelocity(dt);
-        Body predictedBody = new Body(predictedPos.getX(), predictedPos.getY(), predictedVel.getX(), predictedVel.getY(), currBody.getMass(), currBody.getType());
+        Body predictedBody = new Body(predictedPos.getX(), predictedPos.getY(), predictedVel.getX(), predictedVel.getY(), currBody.getMass(),currBody.getRadio(), currBody.getType());
 
         Point2D aFut = calculateAcceleration(predictedBody);
 
@@ -133,8 +140,8 @@ public class BeemanGravitational {
     }
 
     public void updateBody(Point2D p, Point2D v) {
-        prevBody = new Body(currBody.getR().getX(), currBody.getR().getY(), currBody.getV().getX(), currBody.getV().getY(), currBody.getMass(), currBody.getType());
-        currBody = new Body(p.getX(), p.getY(), v.getX(),v.getY(), currBody.getMass(), currBody.getType());
+        prevBody = new Body(currBody.getR().getX(), currBody.getR().getY(), currBody.getV().getX(), currBody.getV().getY(), currBody.getMass(),currBody.getRadio(), currBody.getType());
+        currBody = new Body(p.getX(), p.getY(), v.getX(),v.getY(), currBody.getMass(),currBody.getRadio(), currBody.getType());
     }
 
 }

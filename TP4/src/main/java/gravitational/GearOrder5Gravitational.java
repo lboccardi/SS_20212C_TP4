@@ -31,11 +31,17 @@ public class GearOrder5Gravitational{
                 new Point2D.Double(0,0),
                 new Point2D.Double(0,0),
         };
-
+        Body prevBody= new Body(1.494756064696226E+08,-2.819926499723464E+04,-1.133804292301369E+00,2.780167351164691E+01,currBody.getMass(),currBody.getRadio(),currBody.getType());
+        if(currBody.getType() == BodyType.EARTH){
+            prevBody = new Body(1.494756064696226E+08,-2.819926499723464E+04,-1.133804292301369E+00,2.780167351164691E+01,currBody.getMass(),currBody.getRadio(),currBody.getType());
+        }
+        if(currBody.getType() == BodyType.MARS){
+            prevBody = new Body(-2.436819140046635E+08,-3.364859267457952E+07,3.539367926945636E+00,-2.379158153666075E+01,currBody.getMass(),currBody.getRadio(),currBody.getType());
+        }
         previous = new Point2D[] {
-                new Point2D.Double(currents[0].getX(), currents[0].getY()),
-                new Point2D.Double(currents[1].getX(), currents[1].getY()),
-                calculateAcceleration(currBody),
+                new Point2D.Double(prevBody.getR().getX(),prevBody.getR().getY()),
+                new Point2D.Double(prevBody.getV().getX(), prevBody.getV().getY()),
+                calculateAcceleration(prevBody),
                 new Point2D.Double(0,0),
                 new Point2D.Double(0,0),
                 new Point2D.Double(0,0),
@@ -53,7 +59,7 @@ public class GearOrder5Gravitational{
             }
         }
         double accelerationMod = Math.sqrt( Math.pow(forcex/currBody.getMass(), 2) + Math.pow(forcey/currBody.getMass(), 2) );
-        System.out.println("Acceleration for " + currBody.getType().name() + " is " + accelerationMod);
+        //System.out.println("Acceleration for " + currBody.getType().name() + " is " + accelerationMod);
         return new Point2D.Double(forcex/currBody.getMass(),forcey/currBody.getMass());
     }
 
@@ -99,7 +105,7 @@ public class GearOrder5Gravitational{
             currRps[k] = new Point2D.Double(auxX, auxY);
         }
 
-        Body auxiliaryBody = new Body(currRps[0].getX(), currRps[0].getY(), currRps[1].getX(), currRps[1].getY(),currBody.getMass(),currBody.getType());
+        Body auxiliaryBody = new Body(currRps[0].getX(), currRps[0].getY(), currRps[1].getX(), currRps[1].getY(),currBody.getMass(),currBody.getRadio(),currBody.getType());
         Point2D predictedA = calculateAcceleration(auxiliaryBody);
 
         Point2D deltaA = new Point2D.Double( predictedA.getX() - currRps[2].getX(),

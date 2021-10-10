@@ -64,11 +64,8 @@ public class Simulation3 implements simulation.Simulation {
 //            System.out.println("    "+b.toString());
 //        }
 
-        printWriter.println(3);
-        printWriter.println();
-        printWriter.println("Sun 0 0 " + 696340);
-        printWriter.println("Earth " + earth.getR().getX() + " " + earth.getR().getY() + " " + 6371);
-        printWriter.println("Mars " + mars.getR().getX() + " " + mars.getR().getY() + " " + 3389.5);
+        printXYZ();
+
         if(spaceship != null) {
             printWriter.println("Spaceship " + spaceship.getR().getX() + " " + spaceship.getR().getY() + " " + 100);
         }
@@ -80,7 +77,7 @@ public class Simulation3 implements simulation.Simulation {
         if(t/t_f > lounchPctg && !spaceShipInitialized){
             spaceShipInitialized = true;
             spaceship = initializeSpaceship(earth,sun);
-            schemeSpaceship = new BeemanGravitational(spaceship, Arrays.asList(sun,mars,earth));
+            schemeSpaceship = new BeemanGravitational(spaceship, Arrays.asList(mars,sun,earth));
         }
 
         Point2D r_earth = schemeEarth.calculatePosition(dt);
@@ -92,10 +89,14 @@ public class Simulation3 implements simulation.Simulation {
         if(spaceship != null) {
             Point2D r_spaceship = schemeSpaceship.calculatePosition(dt);
             Point2D v_spaceship = schemeSpaceship.calculateVelocity(dt);
+
+            schemeSpaceship.updateBody(r_spaceship, v_spaceship);
+
             spaceship.setR(r_spaceship);
             spaceship.setV(v_spaceship);
-            schemeSpaceship.updateBody(r_spaceship, v_spaceship);
         }
+        schemeEarth.updateBody(r_earth, v_earth);
+        schemeMars.updateBody(r_mars, v_mars);
 
         earth.setR(r_earth);
         earth.setV(v_earth);
@@ -103,30 +104,33 @@ public class Simulation3 implements simulation.Simulation {
         mars.setR(r_mars);
         mars.setV(v_mars);
 
-        schemeEarth.updateBody(r_earth, v_earth);
-        schemeMars.updateBody(r_mars, v_mars);
+
 
         t += dt;
+        //System.out.println(mars.getType()+" "+mars.getR().getX()+" "+mars.getR().getY()+" "+mars.getV().getX()+" "+mars.getV().getY()+" ");
+        //System.out.println(earth.getType()+" \n\t"+earth.getR().getX()+" "+earth.getR().getY()+" \n\t"+earth.getV().getX()+" "+earth.getV().getY()+" ");
+
     }
 
     private static Body initializeSpaceship(Body earth,Body sun) {
 
         double earthRadio = 6371.01;
         double spaceshipHigh = 1500;
-        double spaceshipR = earth.calculateR()+ earthRadio + spaceshipHigh;
-
+        double spaceshipR = earthRadio + spaceshipHigh;
+        System.out.println(spaceshipR);
         Point2D earthSpaceshipNVector = sun.calculateNormalR(earth);
 
-        Body spaceship = new Body(earthSpaceshipNVector.getX()*spaceshipR,earthSpaceshipNVector.getY()*spaceshipR,0,0,2*Math.pow(10,5), BodyType.SPACESHIP);
+        Body spaceship = new Body(earth.getR().getX() + earthSpaceshipNVector.getX()*spaceshipR,earth.getR().getY() +earthSpaceshipNVector.getY()*spaceshipR,0,0,2E5, 0,BodyType.SPACESHIP);
 
         double spaceshipVelocity = 8;
-        double stationVelocity = 12;
+        double stationVelocity = 7.12;
         Point2D velocityTVector = earth.calculateTVector(spaceship);
 
         double spaceshipV = earth.calculateV()+ spaceshipVelocity + stationVelocity;
-
         spaceship.setV(new Point2D.Double(velocityTVector.getX()*spaceshipV,velocityTVector.getY()*spaceshipV));
 
+        System.out.println(earth.getR().getX()+" "+earth.getR().getY());
+        System.out.println(spaceship.getV().getX()+" "+spaceship.getV().getY());
         return spaceship;
     }
 
@@ -142,17 +146,20 @@ public class Simulation3 implements simulation.Simulation {
 
         events.add(event);
 
-        printWriter.println(3);
-        printWriter.println();
-        printWriter.println("Sun 0 0 " + 696340 * 1000);
-        printWriter.println("Earth " + earth.getR().getX() + " " + earth.getR().getY() + " " + 696340 * 1000);
-        printWriter.println("Mars " + mars.getR().getX() + " " + mars.getR().getY() + " " + 696340 * 1000);
-//        printWriter.println("Spaceship " + spaceship.getR().getX() + " " + spaceship.getR().getY() + " " + 66340 * 1000);
-//
+        printXYZ();
+
 //        System.out.println(t);
 //        for (Body b:Arrays.asList(mars,spaceship,earth)) {
 //            System.out.println("    "+b.toString());
 //        }
+    }
+
+    private void printXYZ() {
+        printWriter.println(3);
+        printWriter.println();
+        for (Body b: Arrays.asList(sun,earth,mars)) {
+            printWriter.println(b.xyz());
+        }
     }
 
     @Override
