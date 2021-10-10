@@ -16,7 +16,7 @@ public class EJ2 {
         double dt =  24 * 60 * 60 / falopa;
         double tf = dt * 365 * falopa;
 
-        double lounchPctg = 0.5;
+        double lounchPctg = 0.835;
         Simulation simulation = new gravitational.Simulation3("output.txt",dt,tf,lounchPctg,sun,earth,mars);
         simulation.initializeSimulation();
 
