@@ -5,5 +5,7 @@ public enum BodyType {
     EARTH,
     MARS,
     SPACESHIP,
+    SATURN,
+    JUPITER,
     ISS
 }
