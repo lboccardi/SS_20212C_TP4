@@ -12,9 +12,9 @@ public class EJ3 {
         Body saturn = new Body(9.853710079799054E+08,-1.113456793790408E+09,6.704401108155684E+00,6.391237023898941E+00,5.6834e26,30000000,BodyType.SATURN);
         Body jupiter = new Body(6.500280253784848E+08,-3.745881860038198E+08,6.373758360629619E+00,1.194722075367566E+01,1.898E27,40000000,BodyType.JUPITER);
         double dt =  60*10;
-        double tf = dt * 6* 24 * 365 * 5;
+        double tf = dt * 6* 24 * 365 * 2;
 
-        double lounchPctg = 0.8;
+        double lounchPctg = 0.359;
         Simulation6 simulation = new Simulation6("output.txt",dt,tf,lounchPctg,sun,earth,mars,jupiter,saturn);
         simulation.initializeSimulation();
 
@@ -26,7 +26,7 @@ public class EJ3 {
                 e.printStackTrace();
             }
         }
-
+        System.out.println(simulation.getSpaceshipJupiterMinDist());
         if(simulation.spaceshipReachedJupiter()){
             System.out.println(simulation.getJupiterAnalisys());
         }

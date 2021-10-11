@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Simulation6 implements simulation.Simulation {
+public class Simulation5Jupiter implements simulation.Simulation {
 
     private BeemanGravitational schemeEarth;
     private BeemanGravitational schemeSpaceship;
@@ -36,8 +36,10 @@ public class Simulation6 implements simulation.Simulation {
     private final Body mars;
     private final Body jupiter;
     private final Body saturn;
+
     private Body spaceship;
     private List<Event> events;
+    private double spaceshipVel;
 
     private FileWriter fileWriter;
     private  PrintWriter printWriter;
@@ -51,7 +53,7 @@ public class Simulation6 implements simulation.Simulation {
     private double spaceshipTimeOfArrival = -1;
     private boolean noResult = false;
 
-    public Simulation6(String simulationFilename, double dt, double t_f, double lounchPctg, Body sun, Body earth, Body mars, Body jupiter, Body saturn) {
+    public Simulation5Jupiter(String simulationFilename, double dt, double t_f, double lounchPctg, Body sun, Body earth, Body mars,Body jupiter, Body saturn, double spaceshipVel) {
         this.simulationFilename = simulationFilename;
         this.t = 0;
         this.dt = dt;
@@ -63,6 +65,7 @@ public class Simulation6 implements simulation.Simulation {
         this.jupiter = jupiter;
         this.saturn = saturn;
         this.spaceship = null;
+        this.spaceshipVel = spaceshipVel;
 
         spaceshipReachedJupiter = false;
         spaceshipJupiterMinDistCurrDist = jupiter.getR().distance(earth.getR());
@@ -147,7 +150,7 @@ public class Simulation6 implements simulation.Simulation {
         t += dt;
     }
 
-    private static Body initializeSpaceship(Body earth,Body sun) {
+    private Body initializeSpaceship(Body earth,Body sun) {
         double earthRadio = 6371.01;
         double spaceshipHigh = 1500;
         double spaceshipR = earthRadio + spaceshipHigh;
@@ -157,7 +160,7 @@ public class Simulation6 implements simulation.Simulation {
 
         //System.out.println(spaceship.getR().distance(earth.getR()));
 
-        double spaceshipVelocity = 8;
+        double spaceshipVelocity = spaceshipVel;
         double stationVelocity = 7.12;
         Point2D velocityTVector = earth.calculateTVector(spaceship);
 
@@ -181,7 +184,7 @@ public class Simulation6 implements simulation.Simulation {
     }
 
     private void printXYZ() {
-        printWriter.println(6);
+        printWriter.println(4);
         printWriter.println();
         for (Body b: Arrays.asList(sun,earth,mars,jupiter,saturn)) {
             printWriter.println(b.xyz());
@@ -226,10 +229,18 @@ public class Simulation6 implements simulation.Simulation {
         return new Analisys(spaceshipJupiterMinDist, spaceshipTimeOfArrival, lounchPctg, t_f);
     }
     public String getData(){
-        return lounchPctg + ", "
+        return spaceshipVel + ", "
                 + spaceshipJupiterMinDist + ", "
                 + spaceshipTimeOfArrival + ", "
                 + t_f + ", "
                 + (lounchPctg * t_f)/(60 * 60 * 24);
+    }
+    public boolean isSpaceShipInitialized(){
+        return spaceShipInitialized;
+    }
+    public String getSpaceShipData(){
+        double spaceshipVelocity = Math.sqrt(Math.pow(spaceship.getV().getX(),2) + Math.pow(spaceship.getV().getY(),2));
+        return  spaceshipVelocity + ", "
+                + (t)/(60 * 60 * 24);
     }
 }
