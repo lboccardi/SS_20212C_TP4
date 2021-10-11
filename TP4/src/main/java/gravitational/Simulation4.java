@@ -211,4 +211,12 @@ public class Simulation4 implements simulation.Simulation {
                 + t_f + ", "
                 + (lounchPctg * t_f)/(60 * 60 * 24);
     }
+    public boolean isSpaceShipInitialized(){
+        return spaceShipInitialized;
+    }
+    public String getSpaceShipData(){
+        double spaceshipVelocity = Math.sqrt(Math.pow(spaceship.getV().getX(),2) + Math.pow(spaceship.getV().getY(),2));
+        return  spaceshipVelocity + ", "
+                + (t)/(60 * 60 * 24);
+    }
 }
