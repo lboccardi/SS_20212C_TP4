@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Simulation6 implements simulation.Simulation {
+public class Simulation4Jupiter implements simulation.Simulation {
 
     private BeemanGravitational schemeEarth;
     private BeemanGravitational schemeSpaceship;
@@ -51,7 +51,10 @@ public class Simulation6 implements simulation.Simulation {
     private double spaceshipTimeOfArrival = -1;
     private boolean noResult = false;
 
-    public Simulation6(String simulationFilename, double dt, double t_f, double lounchPctg, Body sun, Body earth, Body mars, Body jupiter, Body saturn) {
+    private Point2D spaceShipArrivalVelocity;
+    private Point2D jupiterArrivalVelocity;
+
+    public Simulation4Jupiter(String simulationFilename, double dt, double t_f, double lounchPctg, Body sun, Body earth, Body mars, Body jupiter, Body saturn) {
         this.simulationFilename = simulationFilename;
         this.t = 0;
         this.dt = dt;
@@ -102,6 +105,8 @@ public class Simulation6 implements simulation.Simulation {
                     //System.out.println(auxDist + " " + t/(60*60*24) + " " + (lounchPctg*t_f)/(60*60*24));
                     spaceshipReachedJupiter = true;
                     spaceshipTimeOfArrival = t;
+                    spaceShipArrivalVelocity = spaceship.getV();
+                    jupiterArrivalVelocity = jupiter.getV();
                     System.out.println("Le pegamos.");
                 }
             }
@@ -225,11 +230,26 @@ public class Simulation6 implements simulation.Simulation {
     public Analisys getJupiterAnalisys(){
         return new Analisys(spaceshipJupiterMinDist, spaceshipTimeOfArrival, lounchPctg, t_f);
     }
+    public boolean isSpaceShipInitialized(){
+        return spaceShipInitialized;
+    }
+    public String getShipAndJupiterData(){
+        return spaceShipArrivalVelocity.getX() + ", "
+                + spaceShipArrivalVelocity.getY() + ", "
+                + jupiterArrivalVelocity.getX() + ", "
+                + jupiterArrivalVelocity.getY();
+    }
     public String getData(){
         return lounchPctg + ", "
                 + spaceshipJupiterMinDist + ", "
                 + spaceshipTimeOfArrival + ", "
                 + t_f + ", "
                 + (lounchPctg * t_f)/(60 * 60 * 24);
+    }
+    //System.out.println(spaceshipMarsMinDist);
+    public String getSpaceShipData(){
+        double spaceshipVelocity = Math.sqrt(Math.pow(spaceship.getV().getX(),2) + Math.pow(spaceship.getV().getY(),2));
+        return  spaceshipVelocity + ", "
+                + (t)/(60 * 60 * 24);
     }
 }
