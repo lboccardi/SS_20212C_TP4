@@ -116,7 +116,7 @@ public class Simulation implements simulation.Simulation {
 
         Point2D earthSpaceshipNVector = sun.calculateNormalR(earth);
 
-        Body spaceship = new Body(earthSpaceshipNVector.getX()*spaceshipR,earthSpaceshipNVector.getY()*spaceshipR,0,0,2*Math.pow(10,5), BodyType.SPACESHIP);
+        Body spaceship = new Body(earth.getR().getX() + earthSpaceshipNVector.getX()*spaceshipR,earth.getR().getY() +earthSpaceshipNVector.getY()*spaceshipR,0,0,2E5, 0,BodyType.SPACESHIP);
 
         double spaceshipVelocity = 8;
         double stationVelocity = 12;

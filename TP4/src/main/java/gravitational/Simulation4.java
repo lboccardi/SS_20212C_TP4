@@ -3,6 +3,7 @@ package gravitational;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.Event;
 import io.Output;
+import models.Analisys;
 import models.Body;
 import models.BodyType;
 
@@ -18,9 +19,9 @@ import java.util.List;
 
 public class Simulation4 implements simulation.Simulation {
 
-    private GearOrder5Gravitational schemeEarth;
-    private GearOrder5Gravitational schemeSpaceship;
-    private GearOrder5Gravitational schemeMars;
+    private BeemanGravitational schemeEarth;
+    private BeemanGravitational schemeSpaceship;
+    private BeemanGravitational schemeMars;
     private final String simulationFilename;
     private double t;
     private final double dt;
@@ -37,12 +38,13 @@ public class Simulation4 implements simulation.Simulation {
     private  PrintWriter printWriter;
 
     private boolean spaceShipInitialized = false;
-    private double marsDist = -1;
-
     private boolean spaceshipReachedMars;
     private double spaceshipMarsMinDist;
     private double spaceshipMarsMinDistCurrDist;
-    private double marsRadious = 3396;
+    private double marsRadious = 3396 + 23436;
+    //private double marsRadious = 1e7;
+    private double spaceshipTimeOfArrival = -1;
+    private boolean noResult = false;
 
     public Simulation4(String simulationFilename, double dt, double t_f, double lounchPctg, Body sun, Body earth, Body mars) {
         this.simulationFilename = simulationFilename;
@@ -56,35 +58,18 @@ public class Simulation4 implements simulation.Simulation {
         this.spaceship = null;
 
         spaceshipReachedMars = false;
-        spaceshipMarsMinDist = calculateDistance(mars, earth);
-        spaceshipMarsMinDistCurrDist = spaceshipMarsMinDist;
+        spaceshipMarsMinDistCurrDist = mars.getR().distance(earth.getR());
+        spaceshipMarsMinDist = spaceshipMarsMinDistCurrDist;
     }
 
-    private double calculateDistance(Body b1, Body b2) {
-//        double dx = Math.abs(b2.getR().getX() - b1.getR().getX());
-//        double dy = Math.abs(b2.getR().getY() - b1.getR().getY());
-//        return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-        return b1.getR().distance(b2.getR());
-    }
     @Override
     public void initializeSimulation() throws IOException {
         events = new ArrayList<>();
-        schemeEarth = new GearOrder5Gravitational(earth, Arrays.asList(sun,mars));
-        schemeMars = new GearOrder5Gravitational(mars, Arrays.asList(sun,earth));
-        //schemeSpaceship = new GearOrder5Gravitational(spaceship, Arrays.asList(sun,mars,earth));
+        schemeEarth = new BeemanGravitational(earth, Arrays.asList(sun,mars));
+        schemeMars = new BeemanGravitational(mars, Arrays.asList(sun,earth));
+
         fileWriter = new FileWriter(simulationFilename.replace(".txt", ".xyz"), false);
         printWriter = new PrintWriter(new BufferedWriter(fileWriter));
-
-//        System.out.println(t);
-//        for (Body b:Arrays.asList(mars,spaceship,earth)) {
-//            System.out.println("    "+b.toString());
-//        }
-
-        printXYZ();
-
-        if(spaceship != null) {
-            printWriter.println("Spaceship " + spaceship.getR().getX() + " " + spaceship.getR().getY() + " " + 100);
-        }
     }
 
     @Override
@@ -93,59 +78,64 @@ public class Simulation4 implements simulation.Simulation {
         if(t/t_f > lounchPctg && !spaceShipInitialized){
             spaceShipInitialized = true;
             spaceship = initializeSpaceship(earth,sun);
-            schemeSpaceship = new GearOrder5Gravitational(spaceship, Arrays.asList(sun,mars,earth));
-            System.out.println("Despegó!");
+            schemeSpaceship = new BeemanGravitational(spaceship, Arrays.asList(mars, sun,earth));
         }
+
+        //System.out.println(t/(60*60*24));
 
         if(spaceShipInitialized){
-            spaceshipMarsMinDistCurrDist = calculateDistance(mars, spaceship);
-
-            if(spaceshipMarsMinDistCurrDist < spaceshipMarsMinDist){
-                spaceshipMarsMinDist = spaceshipMarsMinDistCurrDist;
-                if(spaceshipMarsMinDistCurrDist < marsRadious){
+            double auxDist = mars.getR().distance(spaceship.getR());
+            double NewSpaceshipMarsMinDist = Math.min(auxDist, spaceshipMarsMinDist);
+            if(NewSpaceshipMarsMinDist < spaceshipMarsMinDist){
+                spaceshipMarsMinDist = NewSpaceshipMarsMinDist;
+                if(spaceshipMarsMinDist < marsRadious) {
+                    //System.out.println(auxDist + " " + t/(60*60*24) + " " + (lounchPctg*t_f)/(60*60*24));
                     spaceshipReachedMars = true;
-                    System.out.println("Le pegamos.");
+                    spaceshipTimeOfArrival = t;
+                    //System.out.println("Le pegamos.");
                 }
             }
+
+            double auxDistToSunFromSpaceship = sun.getR().distance(spaceship.getR());
+            double auxDistToSunFromMars = sun.getR().distance(mars.getR());
+            if(auxDistToSunFromSpaceship > auxDistToSunFromMars){
+                noResult = true;
+            }
         }
-
-        Point2D r_earth = schemeEarth.calculatePosition(dt);
-        Point2D v_earth = schemeEarth.calculateVelocity(dt);
-
-        Point2D r_mars = schemeMars.calculatePosition(dt);
-        Point2D v_mars = schemeMars.calculateVelocity(dt);
 
         if(spaceShipInitialized) {
             Point2D r_spaceship = schemeSpaceship.calculatePosition(dt);
             Point2D v_spaceship = schemeSpaceship.calculateVelocity(dt);
-
-
+            schemeSpaceship.updateBody(r_spaceship, v_spaceship);
             spaceship.setR(r_spaceship);
             spaceship.setV(v_spaceship);
         }
 
+        Point2D r_earth = schemeEarth.calculatePosition(dt);
+        Point2D v_earth = schemeEarth.calculateVelocity(dt);
+        Point2D r_mars = schemeMars.calculatePosition(dt);
+        Point2D v_mars = schemeMars.calculateVelocity(dt);
+
+        schemeEarth.updateBody(r_earth, v_earth);
+        schemeMars.updateBody(r_mars, v_mars);
+
         earth.setR(r_earth);
         earth.setV(v_earth);
-
         mars.setR(r_mars);
         mars.setV(v_mars);
 
-
-
         t += dt;
-        //System.out.println(mars.getType()+" "+mars.getR().getX()+" "+mars.getR().getY()+" "+mars.getV().getX()+" "+mars.getV().getY()+" ");
-        //System.out.println(earth.getType()+" \n\t"+earth.getR().getX()+" "+earth.getR().getY()+" \n\t"+earth.getV().getX()+" "+earth.getV().getY()+" ");
-
     }
 
     private static Body initializeSpaceship(Body earth,Body sun) {
-
         double earthRadio = 6371.01;
-        double spaceshipHigh = 1500 + 30000;
+        double spaceshipHigh = 1500;
         double spaceshipR = earthRadio + spaceshipHigh;
         Point2D earthSpaceshipNVector = sun.calculateNormalR(earth);
 
-        Body spaceship = new Body(earth.getR().getX() + earthSpaceshipNVector.getX()*spaceshipR,earth.getR().getY() +earthSpaceshipNVector.getY()*spaceshipR,0,0,2E5, 0,BodyType.SPACESHIP);
+        Body spaceship = new Body(earth.getR().getX() + earthSpaceshipNVector.getX() * spaceshipR,earth.getR().getY() + earthSpaceshipNVector.getY() * spaceshipR,0,0,2E5, 10000000.0,BodyType.SPACESHIP);
+
+        //System.out.println(spaceship.getR().distance(earth.getR()));
 
         double spaceshipVelocity = 8;
         double stationVelocity = 7.12;
@@ -159,22 +149,15 @@ public class Simulation4 implements simulation.Simulation {
 
     @Override
     public void printIteration() throws IOException {
-//        System.out.println(spaceship);
         Event event;
         if(spaceship != null){
             event = new Event(Arrays.asList(earth.getAsCircle(),mars.getAsCircle(),sun.getAsCircle(),spaceship.getAsCircle()),dt,t);
         }else{
             event = new Event(Arrays.asList(earth.getAsCircle(),mars.getAsCircle(),sun.getAsCircle()),dt,t);
         }
-
         events.add(event);
 
         printXYZ();
-
-//        System.out.println(t);
-//        for (Body b:Arrays.asList(mars,spaceship,earth)) {
-//            System.out.println("    "+b.toString());
-//        }
     }
 
     private void printXYZ() {
@@ -198,12 +181,11 @@ public class Simulation4 implements simulation.Simulation {
 
     @Override
     public boolean isFinished() {
-        return t_f < t;
+        return t_f < t || noResult;
     }
 
     @Override
     public void terminate() throws IOException {
-        System.out.println("reached: " + spaceshipReachedMars + " - min dist: " + spaceshipMarsMinDist + " - lounchPCTG: " + lounchPctg);
         try {
             final Output output = new Output(events);
             final ObjectMapper mapper = new ObjectMapper();
@@ -214,8 +196,19 @@ public class Simulation4 implements simulation.Simulation {
 
         printWriter.close();
         fileWriter.close();
+        //System.out.println(spaceshipMarsMinDist);
     }
-    public double getMinDist(){
-        return spaceshipMarsMinDist;
+    public boolean spaceshipReachedMars(){
+        return spaceshipReachedMars;
+    }
+    public Analisys getMarsAnalisys(){
+        return new Analisys(spaceshipMarsMinDist, spaceshipTimeOfArrival, lounchPctg, t_f);
+    }
+    public String getData(){
+        return lounchPctg + ", "
+                + spaceshipMarsMinDist + ", "
+                + spaceshipTimeOfArrival + ", "
+                + t_f + ", "
+                + (lounchPctg * t_f)/(60 * 60 * 24);
     }
 }

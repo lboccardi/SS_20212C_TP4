@@ -15,7 +15,7 @@ var paused = false
 
                 // sun      eatch      mars   ship 
 const colors = ['#fffc3b','#3b68ff','#ff5b3b','#ebebeb']
-const radius = [      30,          15,    10,    5]
+const radius = [      30,          5,    1e7*invScale,    2]
 
 class Circle {
     constructor(id, x, y) {
@@ -105,7 +105,7 @@ var circleArray = [];
 let frames = 1
 let curr_frame = 0
 let requestID = null
-let framerate = 10000
+let framerate = 0.01
 let frameSize =  1/framerate
 let time = 0
 let lastTime = time
@@ -164,7 +164,8 @@ function animate(){
     } else{
         while(time < lastTime + frameSize){
             if(curr_frame < simulation.events.length-1){
-                time += simulation.events[curr_frame].t
+                // time += simulation.events[curr_frame].t
+                time += 5
                 curr_frame++
                 frames--
             }else{
