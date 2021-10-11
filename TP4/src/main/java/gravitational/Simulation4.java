@@ -46,6 +46,9 @@ public class Simulation4 implements simulation.Simulation {
     private double spaceshipTimeOfArrival = -1;
     private boolean noResult = false;
 
+    private Point2D spaceShipArrivalVelocity;
+    private Point2D marsArrivalVelocity;
+
     public Simulation4(String simulationFilename, double dt, double t_f, double lounchPctg, Body sun, Body earth, Body mars) {
         this.simulationFilename = simulationFilename;
         this.t = 0;
@@ -93,6 +96,8 @@ public class Simulation4 implements simulation.Simulation {
                     spaceshipReachedMars = true;
                     spaceshipTimeOfArrival = t;
                     //System.out.println("Le pegamos.");
+                    spaceShipArrivalVelocity = spaceship.getV();
+                    marsArrivalVelocity = mars.getV();
                 }
             }
 
@@ -182,7 +187,7 @@ public class Simulation4 implements simulation.Simulation {
 
     @Override
     public boolean isFinished() {
-        return t_f < t || noResult;
+        return t_f < t ;
     }
 
     @Override
@@ -214,6 +219,12 @@ public class Simulation4 implements simulation.Simulation {
     }
     public boolean isSpaceShipInitialized(){
         return spaceShipInitialized;
+    }
+    public String getShipAndMarsData(){
+        return spaceShipArrivalVelocity.getX() + ", "
+                + spaceShipArrivalVelocity.getY() + ", "
+                + marsArrivalVelocity.getX() + ", "
+                + marsArrivalVelocity.getY();
     }
     public String getSpaceShipData(){
         double spaceshipVelocity = Math.sqrt(Math.pow(spaceship.getV().getX(),2) + Math.pow(spaceship.getV().getY(),2));
