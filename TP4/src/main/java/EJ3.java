@@ -24,7 +24,7 @@ public class EJ3 {
         Simulation4Jupiter simulation = new Simulation4Jupiter("output.txt",dt,tf,lounchPctg,sun,earth,mars,jupiter,saturn);
         simulation.initializeSimulation();
 
-        fileWriter = new FileWriter("datos3Jupiter.csv", false);
+        fileWriter = new FileWriter("datos3xJupiter.csv", false);
         printWriter = new PrintWriter(new BufferedWriter(fileWriter));
 
         while (!simulation.isFinished()) {

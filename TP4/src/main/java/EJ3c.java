@@ -25,12 +25,12 @@ public class EJ3c {
         double dt =  60*10;
         double tf = dt * 6* 24 * 365 * 5;
 
-        double i = 0;
-        double step = 1;
-        double end = 500;
+        double i = 7.99;
+        double step = 0.001;
+        double end = 8.01;
         List<Analisys> mins = new ArrayList<>();
 
-        fileWriter = new FileWriter("datos6Jupiter.csv", false);
+        fileWriter = new FileWriter("datos6p4Jupiter.csv", false);
         printWriter = new PrintWriter(new BufferedWriter(fileWriter));
 
         double lounchPctg = 0.359;
