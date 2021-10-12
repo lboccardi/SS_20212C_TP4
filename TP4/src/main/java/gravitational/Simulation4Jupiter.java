@@ -176,7 +176,7 @@ public class Simulation4Jupiter implements simulation.Simulation {
     public void printIteration() throws IOException {
         Event event;
         if(spaceship != null){
-            event = new Event(Arrays.asList(earth.getAsCircle(),mars.getAsCircle(),sun.getAsCircle(),spaceship.getAsCircle(),jupiter.getAsCircle(),saturn.getAsCircle()),dt,t);
+            event = new Event(Arrays.asList(earth.getAsCircle(),mars.getAsCircle(),sun.getAsCircle(),jupiter.getAsCircle(),saturn.getAsCircle(),spaceship.getAsCircle()),dt,t);
         }else{
             event = new Event(Arrays.asList(earth.getAsCircle(),mars.getAsCircle(),sun.getAsCircle(),jupiter.getAsCircle(),saturn.getAsCircle()),dt,t);
         }
@@ -214,7 +214,7 @@ public class Simulation4Jupiter implements simulation.Simulation {
         try {
             final Output output = new Output(events);
             final ObjectMapper mapper = new ObjectMapper();
-            mapper.writeValue(Paths.get(simulationFilename.replace(".txt", "_light.json")).toFile(), output);
+            mapper.writeValue(Paths.get(simulationFilename.replace(".txt", "_J_light.json")).toFile(), output);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

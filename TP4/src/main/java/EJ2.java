@@ -27,7 +27,7 @@ public class EJ2 {
         Simulation4 simulation = new gravitational.Simulation4("output.txt",dt,tf,lounchPctg,sun,earth,mars);
         simulation.initializeSimulation();
 
-        fileWriter = new FileWriter("datos3.csv", false);
+        fileWriter = new FileWriter("datos3vis.csv", false);
         printWriter = new PrintWriter(new BufferedWriter(fileWriter));
 
         while (!simulation.isFinished()) {
