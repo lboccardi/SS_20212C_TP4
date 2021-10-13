@@ -36,5 +36,6 @@ if __name__ == '__main__':
     plt.ylabel('ECM')
     plt.xlabel('Diferencial de Tiempo (s)')
     plt.yscale('log')
+    plt.xscale('log')
     plt.legend()
     plt.show()

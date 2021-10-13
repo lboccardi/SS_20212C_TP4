@@ -29,16 +29,12 @@ public class EJ1 {
 
         parseArguments(args);
 
-        double initialDt = 1.0 / 2000;
-        double finalDt = (1.0 / 100);
-        double currDt = initialDt;
-
         errorFileWriter = new FileWriter(path.replace(".txt", "_errors.txt"), false);
         errorPrintWriter = new PrintWriter(new BufferedWriter(errorFileWriter));
 
-        while(currDt <= finalDt) {
-            doSimulation(currDt, t_f);
-            currDt += initialDt;
+        for (int i = -6 ; i < -1 ; i++) {
+            double dt = Math.pow(10, i);
+            doSimulation(dt, t_f);
         }
 
         errorPrintWriter.close();
@@ -58,7 +54,7 @@ public class EJ1 {
     }
 
     public static String fmt (double dt) {
-        return String.format("%.4f", dt).replace(',', '.');
+        return String.format("%f", dt).replace(',', '.');
     }
 
     public static void doSimulation(double currDt, double t_f) throws IOException {
